@@ -31,7 +31,7 @@ class _Code_editorState extends State<Code_editor> {
 
   void update_tokens() {
     debounce?.cancel();
-    debounce = Timer(Duration(milliseconds: 100), () {
+    debounce = Timer(Duration(milliseconds: 200), () {
       setState(() {
         tokens = Lexer(controller.text).tokenize();
       });
@@ -43,11 +43,18 @@ class _Code_editorState extends State<Code_editor> {
     return Container(
       color: Colors.black,
       padding: EdgeInsets.all(12),
-      child: SingleChildScrollView(
-        child: Stack(
-          children: [
-            RichText(
-              text: build_text()
+      child: Stack(
+        children: [
+          RichText(
+            text: build_text()
+          ),
+          TextField(
+            controller: controller,
+            maxLines: null,
+            style: Styles.code_editor_base.copyWith(color: Colors.transparent),
+            cursorColor: Colors.white,
+            decoration: InputDecoration(
+              border: InputBorder.none
             ),
             Focus(
               onKeyEvent: (node, event) {
@@ -120,8 +127,15 @@ class _Code_editorState extends State<Code_editor> {
     }
 
     return TextSpan(
-      style: Styles.code_editor_base,
-      children: spans
+      children: tokens.map((t) {
+        Color color = get_color(t.type);
+        return TextSpan(
+          text: t.lexeme,
+          style: Styles.code_editor_base.copyWith(
+            color: color,
+            decoration: color == Colors.red ? TextDecoration.underline : null),
+        );
+      }).toList()
     );
   }
 
