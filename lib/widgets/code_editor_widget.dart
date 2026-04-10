@@ -48,48 +48,37 @@ class _Code_editorState extends State<Code_editor> {
           RichText(
             text: build_text()
           ),
-          TextField(
-            controller: controller,
-            maxLines: null,
-            style: Styles.code_editor_base.copyWith(color: Colors.transparent),
-            cursorColor: Colors.white,
-            decoration: InputDecoration(
-              border: InputBorder.none
-            ),
-            Focus(
-              onKeyEvent: (node, event) {
-                if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.tab) {
-                    final selection = controller.selection;
-                    final text = controller.text;
-                    const tab_spaces = '    ';
+          Focus(
+            onKeyEvent: (node, event) {
+              if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.tab) {
+                final selection = controller.selection;
+                final text = controller.text;
+                const tab_spaces = '    ';
               
-                    if (selection.isValid) {
-                      final newText = text.replaceRange(selection.start, selection.end, tab_spaces);
-                      
-                      controller.value = TextEditingValue(
-                        text: newText,
-                        selection: TextSelection.collapsed(
-                          offset: selection.start + tab_spaces.length
-                        )
-                      );
-                    }
-                  }
-              },
-              child: TextField(
-                controller: controller,
-                maxLines: null,
-                style: Styles.code_editor_base.copyWith(color: Colors.transparent),
-                cursorColor: Colors.white,
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  isCollapsed: true,
-                  contentPadding: EdgeInsets.zero
-                ),
-                textAlignVertical: TextAlignVertical.top
+                if (selection.isValid) {
+                  final newText = text.replaceRange(selection.start, selection.end, tab_spaces);  
+                  controller.value = TextEditingValue(
+                    text: newText,
+                    selection: TextSelection.collapsed(
+                      offset: selection.start + tab_spaces.length
+                    )
+                  );
+                }
+                return KeyEventResult.handled;
+              }
+              return KeyEventResult.ignored;
+            },
+            child: TextField(
+              controller: controller,
+              maxLines: null,
+              style: Styles.code_editor_base.copyWith(color: Colors.transparent),
+              cursorColor: Colors.white,
+              decoration: InputDecoration(
+                border: InputBorder.none
               ),
-            )
-          ],
-        ),
+            ),
+          )
+        ],
       ),
     );
   }
