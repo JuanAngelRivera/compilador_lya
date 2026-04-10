@@ -33,4 +33,11 @@ class Styles {
     backgroundColor: WidgetStatePropertyAll(green),
     foregroundColor: WidgetStatePropertyAll(bg),
   );
+
+  static TextStyle code_editor_base = TextStyle(
+    fontFamily: 'RobotMono',
+    fontSize: 14,
+    height: 1.5,
+    letterSpacing: 0,
+  );
 }

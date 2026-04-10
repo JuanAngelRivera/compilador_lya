@@ -2,6 +2,7 @@ import 'package:compilador_lya/classes/dfa_identifier.dart';
 import 'package:compilador_lya/classes/dfa_number.dart';
 import 'package:compilador_lya/classes/match_token.dart';
 import 'package:compilador_lya/classes/token.dart';
+import 'package:flutter/material.dart';
 
 class Lexer {
   final String input;
@@ -77,21 +78,26 @@ class Lexer {
       int start_line = line;
       int start_column = column;
 
-      MatchToken? token = matchNumber() ?? matchIdentifier() ?? matchSimbol();
+      MatchToken? match = matchNumber() ?? matchIdentifier() ?? matchSimbol();
 
-      if (token == null) {
-        throw Exception("Error léxico en línea $line, columna $column: '${input[position]}'");
+      if (match == null) {
+        tokens.add(
+          Token('error', input[position], position, line, column)
+        );
+
+        advance();
+        continue;
       }
 
-      if (reserved_words.contains(token.lexeme)) {
-        token = MatchToken(token.lexeme, token.lexeme, token.length);
+      if (reserved_words.contains(match.lexeme)) {
+        match = MatchToken('reservada', match.lexeme, match.length);
       }
 
-      Token full_token = Token(token.type, token.lexeme, start_position, start_line, start_column);
+      Token full_token = Token(match.type, match.lexeme, start_position, start_line, start_column);
       
       tokens.add(full_token);
 
-      for (int i = 0; i < token.length; i++) {
+      for (int i = 0; i < match.length; i++) {
         advance();
       }
     }
@@ -112,7 +118,10 @@ class Lexer {
   MatchToken? matchSimbol() {
     String char = input[position];
 
-    switch(char) {
+    if (char == '=' || char == ';' || char == '{' || char == '}' || char == '(' || char == ')') {
+      return MatchToken('simbolo', char, 1);
+    }
+    /*switch(char) {
       case '=':
         return MatchToken('igual', char, 1);
       case ';':
@@ -127,7 +136,7 @@ class Lexer {
         return MatchToken('parentesis_cerrado', char, 1);
       default:
         return null;
-    }
+    }*/
   }
 
   bool is_white_space(String char) {
