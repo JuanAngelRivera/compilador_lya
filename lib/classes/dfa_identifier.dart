@@ -6,44 +6,37 @@ class DfaIdentifier extends DFA {
 
   @override
   Token? recognize() {
-    return q0(input, position);
+    return q0(input, position, 0);
   }
 
-  Token? q0(String input, int position) {
+  Token? q0(String input, int position, int start) {
 
-    if(input.isEmpty){
-      return error(input, position);
+    if(position >= input.length) {
+      return error(input.substring(start, position), start);
     }
 
-    String char = input.substring(position);
+    String char = input[position];
 
-    if (is_letter(char)){
-      return q1(input, position + 1);
+    if (is_letter(char) || char == '_') {
+      return q1(input, position + 1, start);
     }
-    else if (char == '_' || char == '\$'){
-      q1(input, position + 1);
-    }
-    else{
-      error(input, position);
+    else {
+      return error(input.substring(start, position), start);
     }
   }
 
-  Token? q1(String input, position){
-
-    if(input.isEmpty){
-      return error(input, position);
+  Token? q1(String input, int position, int start) {
+    if (position >= input.length) {
+      return Token('identificador', input.substring(start, position), start);
     }
 
-    String char = input.substring(position);
+    String char = input[position];
 
-    if (is_letter(char)){
-      return q1(input, position + 1);
-    }
-    else if (char == '_'){
-      q1(input, position + 1);
+    if (is_letter(char) || is_digit(char) || char == '_' || char == '\$'){
+      return q1(input, position + 1, start);
     }
     else{
-      error(input, position);
+      return Token('identificador', input.substring(start, position), start);
     }
   }
 }

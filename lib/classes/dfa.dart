@@ -16,18 +16,12 @@ abstract class DFA {
                           'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'ñ',
                           'z', 'x', 'c', 'v', 'b', 'n', 'm'];
 
-  static const List<String> special = ['_', '\$'];
-
   bool is_digit(String input) {
     return digits.contains(input);
   }
 
   bool is_letter(String input){
     return letters.contains(input);
-  }
-
-  bool is_special(String input){
-    return special.contains(input);
   }
 
   Token error(String input, int position) {
