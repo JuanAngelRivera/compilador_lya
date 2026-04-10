@@ -1,17 +1,17 @@
 import 'package:compilador_lya/classes/dfa.dart';
-import 'package:compilador_lya/classes/token.dart';
+import 'package:compilador_lya/classes/match_token.dart';
 
 class DfaNumber extends DFA {
-  DfaNumber(String input) : super(input, 0);
+  DfaNumber(String input, int position) : super(input, position);
 
   @override
-  Token? recognize() {
+  MatchToken? recognize() {
     return q0(input, position, 0);
   }
 
-  Token? q0(String input, int position, int start) {
+  MatchToken? q0(String input, int position, int start) {
     if (position >= input.length) {
-      return error(input.substring(start, position), start);
+      return null;
     }
 
     String char = input[position];
@@ -23,15 +23,15 @@ class DfaNumber extends DFA {
       return q2(input, position + 1, start);
     }
     else {
-      return error(input.substring(start, position), start);
+      return null;
     }
   }
 
   
 
-  Token? q1(String input, int position, int start) {
+  MatchToken? q1(String input, int position, int start) {
     if (position == input.length) {
-      return Token('entero', input.substring(start, position), start);
+      return MatchToken('entero', input.substring(start, position), start);
     }
 
     String char = input[position];
@@ -46,13 +46,13 @@ class DfaNumber extends DFA {
       return q3(input, position + 1, start);
     }
     else {
-      return Token('entero', input.substring(start, position), start);
+      return MatchToken('entero', input.substring(start, position), start);
     }
   }
   
-  Token? q2(String input, int position, int start) {
+  MatchToken? q2(String input, int position, int start) {
     if (position == input.length) {
-      return error(input.substring(start, position), start);
+      return null;
     }
 
     String char = input[position];
@@ -64,13 +64,13 @@ class DfaNumber extends DFA {
       return q3(input, position + 1, start);
     }
     else {
-      return error(input.substring(start, position), start);
+      return null;
     }
   }
 
-  Token? q3(String input, int position, int start) {
+  MatchToken? q3(String input, int position, int start) {
     if (position == input.length) {
-      return error(input.substring(start, position), start);
+      return null;
     }
 
     String char = input[position];
@@ -79,13 +79,13 @@ class DfaNumber extends DFA {
       return q4(input, position + 1, start);
     }
     else {
-      return error(input.substring(start, position), start);
+      return null;
     }
   }
 
-  Token? q4(String input, int position, int start) {
+  MatchToken? q4(String input, int position, int start) {
     if (position == input.length) {
-      return Token('real', input.substring(start, position), start);
+      return MatchToken('real', input.substring(start, position), start);
     }
 
     String char = input[position];
@@ -97,13 +97,13 @@ class DfaNumber extends DFA {
       return q5(input, position + 1, start);
     }
     else {
-      return Token('real', input.substring(start, position), position);
+      return MatchToken('real', input.substring(start, position), position);
     }
   }
 
-  Token? q5(String input, int position, int start) {
+  MatchToken? q5(String input, int position, int start) {
     if (position == input.length) {
-      return error(input.substring(start, position), start);
+      return null;
     }
 
     String char = input[position];
@@ -115,13 +115,13 @@ class DfaNumber extends DFA {
       return q6(input, position + 1, start);
     }
     else {
-      return error(input.substring(start, position), start);
+      return null;
     }
   }
 
-  Token? q6(String input, int position, int start) {
+  MatchToken? q6(String input, int position, int start) {
     if (position == input.length) {
-      return error(input.substring(start, position), start);
+      return null;
     }
 
     String char = input[position];
@@ -130,13 +130,13 @@ class DfaNumber extends DFA {
       return q7(input, position + 1, start);
     }
     else {
-      return error(input.substring(start, position), start);
+      return null;
     }
   }
 
-  Token? q7(String input, int position, int start) {
+  MatchToken? q7(String input, int position, int start) {
     if (position == input.length) {
-      return Token('cientifico', input.substring(start, position), start);
+      return MatchToken('cientifico', input.substring(start, position), start);
     }
 
     String char = input[position];
@@ -145,7 +145,7 @@ class DfaNumber extends DFA {
       return q7(input, position + 1, start);
     }
     else {
-      return Token('cientifico', input.substring(start, position), start);
+      return MatchToken('cientifico', input.substring(start, position), start);
     }
   }
 }

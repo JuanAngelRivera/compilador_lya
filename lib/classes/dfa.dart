@@ -1,4 +1,4 @@
-import 'package:compilador_lya/classes/token.dart';
+import 'package:compilador_lya/classes/match_token.dart';
 
 abstract class DFA {
 
@@ -24,9 +24,5 @@ abstract class DFA {
     return letters.contains(input);
   }
 
-  Token error(String input, int position) {
-    return Token('error', input, position);
-  }
-
-  Token? recognize();
+  MatchToken? recognize();
 }
