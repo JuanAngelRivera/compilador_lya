@@ -4,6 +4,7 @@ import 'package:compilador_lya/classes/lexer.dart';
 import 'package:compilador_lya/classes/token.dart';
 import 'package:compilador_lya/utils/styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class Code_editor extends StatefulWidget {
   const Code_editor({super.key});
@@ -17,6 +18,7 @@ class _Code_editorState extends State<Code_editor> {
   final TextEditingController controller = TextEditingController();
   List<Token> tokens = [];
   Timer? debounce;
+  final FocusNode focus_node = FocusNode();
 
   @override
   void initState() {
@@ -47,17 +49,37 @@ class _Code_editorState extends State<Code_editor> {
             RichText(
               text: build_text()
             ),
-            TextField(
-              controller: controller,
-              maxLines: null,
-              style: Styles.code_editor_base.copyWith(color: Colors.transparent),
-              cursorColor: Colors.white,
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                isCollapsed: true,
-                contentPadding: EdgeInsets.zero
+            Focus(
+              onKeyEvent: (node, event) {
+                if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.tab) {
+                    final selection = controller.selection;
+                    final text = controller.text;
+                    const tab_spaces = '    ';
+              
+                    if (selection.isValid) {
+                      final newText = text.replaceRange(selection.start, selection.end, tab_spaces);
+                      
+                      controller.value = TextEditingValue(
+                        text: newText,
+                        selection: TextSelection.collapsed(
+                          offset: selection.start + tab_spaces.length
+                        )
+                      );
+                    }
+                  }
+              },
+              child: TextField(
+                controller: controller,
+                maxLines: null,
+                style: Styles.code_editor_base.copyWith(color: Colors.transparent),
+                cursorColor: Colors.white,
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  isCollapsed: true,
+                  contentPadding: EdgeInsets.zero
+                ),
+                textAlignVertical: TextAlignVertical.top
               ),
-              textAlignVertical: TextAlignVertical.top,
             )
           ],
         ),
@@ -72,7 +94,7 @@ class _Code_editorState extends State<Code_editor> {
     for(var t in tokens) {
       if (current < t.position) {
         spans.add(TextSpan(
-          text:controller.text.substring(current, t.position),
+          text: normalize(controller.text.substring(current, t.position)),
           style: Styles.code_editor_base
         ));
       }
@@ -80,7 +102,7 @@ class _Code_editorState extends State<Code_editor> {
       Color color = get_color(t.type);
 
       spans.add(TextSpan(
-        text: t.lexeme,
+        text: normalize(t.lexeme),
         style: Styles.code_editor_base.copyWith(
           color: color,
           decoration: color == Colors.red ? TextDecoration.underline : null
@@ -101,6 +123,10 @@ class _Code_editorState extends State<Code_editor> {
       style: Styles.code_editor_base,
       children: spans
     );
+  }
+
+  String normalize(String text) {
+    return text.replaceAll('\t', '    ');
   }
 
   Color get_color(String type) {
