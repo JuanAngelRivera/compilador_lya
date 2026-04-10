@@ -29,7 +29,7 @@ class _Code_editorState extends State<Code_editor> {
 
   void update_tokens() {
     debounce?.cancel();
-    debounce = Timer(Duration(milliseconds: 200), () {
+    debounce = Timer(Duration(milliseconds: 100), () {
       setState(() {
         tokens = Lexer(controller.text).tokenize();
       });
@@ -41,36 +41,65 @@ class _Code_editorState extends State<Code_editor> {
     return Container(
       color: Colors.black,
       padding: EdgeInsets.all(12),
-      child: Stack(
-        children: [
-          RichText(
-            text: build_text()
-          ),
-          TextField(
-            controller: controller,
-            maxLines: null,
-            style: Styles.code_editor_base.copyWith(color: Colors.transparent),
-            cursorColor: Colors.white,
-            decoration: InputDecoration(
-              border: InputBorder.none
+      child: SingleChildScrollView(
+        child: Stack(
+          children: [
+            RichText(
+              text: build_text()
             ),
-          )
-        ],
+            TextField(
+              controller: controller,
+              maxLines: null,
+              style: Styles.code_editor_base.copyWith(color: Colors.transparent),
+              cursorColor: Colors.white,
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                isCollapsed: true,
+                contentPadding: EdgeInsets.zero
+              ),
+              textAlignVertical: TextAlignVertical.top,
+            )
+          ],
+        ),
       ),
     );
   }
 
   TextSpan build_text() {
+    List<InlineSpan> spans = [];
+    int current = 0;
+
+    for(var t in tokens) {
+      if (current < t.position) {
+        spans.add(TextSpan(
+          text:controller.text.substring(current, t.position),
+          style: Styles.code_editor_base
+        ));
+      }
+
+      Color color = get_color(t.type);
+
+      spans.add(TextSpan(
+        text: t.lexeme,
+        style: Styles.code_editor_base.copyWith(
+          color: color,
+          decoration: color == Colors.red ? TextDecoration.underline : null
+        )
+      ));
+
+      current = t.position + t.length;
+    }
+
+    if (current < controller.text.length) {
+      spans.add(TextSpan(
+        text: controller.text.substring(current),
+        style: Styles.code_editor_base,
+      ));
+    }
+
     return TextSpan(
-      children: tokens.map((t) {
-        Color color = get_color(t.type);
-        return TextSpan(
-          text: t.lexeme,
-          style: Styles.code_editor_base.copyWith(
-            color: color,
-            decoration: color == Colors.red ? TextDecoration.underline : null),
-        );
-      }).toList()
+      style: Styles.code_editor_base,
+      children: spans
     );
   }
 

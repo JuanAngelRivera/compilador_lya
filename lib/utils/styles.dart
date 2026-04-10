@@ -16,7 +16,9 @@ class Styles {
   );
 
   static TextStyle code_editor_base = TextStyle(
-    fontFamily: 'monospace',
-    fontSize: 14
+    fontFamily: 'RobotMono',
+    fontSize: 14,
+    height: 1.5,
+    letterSpacing: 0,
   );
 }
