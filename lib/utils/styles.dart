@@ -14,4 +14,9 @@ class Styles {
     shadowColor: WidgetStatePropertyAll(Colors.transparent),
     elevation: WidgetStatePropertyAll(0)
   );
+
+  static TextStyle code_editor_base = TextStyle(
+    fontFamily: 'monospace',
+    fontSize: 14
+  );
 }
