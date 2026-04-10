@@ -6,126 +6,146 @@ class DfaNumber extends DFA {
 
   @override
   Token? recognize() {
-    return q0(input, position);
+    return q0(input, position, 0);
   }
 
-  Token? q0(String input, int position) {
-    if (input.isEmpty) {
-      return error(input, position);
+  Token? q0(String input, int position, int start) {
+    if (position >= input.length) {
+      return error(input.substring(start, position), start);
     }
 
-    String char = input.substring(position);
+    String char = input[position];
 
     if (is_digit(char)) {
-      q1(input, position++);
+      return q1(input, position + 1, start);
     }
     else if (char == '+' || char == '-') {
-      q2(input, position++);
+      return q2(input, position + 1, start);
     }
     else {
-      error(input, position);
+      return error(input.substring(start, position), start);
     }
   }
 
-  Token? q1(String input, int position) {
+  
+
+  Token? q1(String input, int position, int start) {
     if (position == input.length) {
-      return Token('entero', input, position);
+      return Token('entero', input.substring(start, position), start);
     }
 
-    String char = input.substring(position);
+    String char = input[position];
 
     if (is_digit(char)) {
-      q1(input, position++);
+      return q1(input, position + 1, start);
     }
     else if (char == 'e' || char == 'E') {
-      q5(input, position++);
+      return q5(input, position + 1, start);
     }
     else if (char == '.') {
-      q3(input, position++);
+      return q3(input, position + 1, start);
     }
     else {
-      error(input, position);
+      return Token('entero', input.substring(start, position), start);
     }
   }
   
-  Token? q2(String input, int position) {
+  Token? q2(String input, int position, int start) {
     if (position == input.length) {
-      return error(input, position);
+      return error(input.substring(start, position), start);
     }
 
-    String char = input.substring(position);
+    String char = input[position];
 
     if (is_digit(char)) {
-      q1(input, position++);
+      return q1(input, position + 1, start);
     }
     else if (char == '.') {
-      q3(input, position++);
+      return q3(input, position + 1, start);
     }
     else {
-      return error(input, position);
+      return error(input.substring(start, position), start);
     }
   }
 
-  Token? q3(String input, int position) {
+  Token? q3(String input, int position, int start) {
     if (position == input.length) {
-      return error(input, position);
+      return error(input.substring(start, position), start);
     }
 
-    String char = input.substring(position);
+    String char = input[position];
 
     if (is_digit(char)) {
-      q4(input, position++);
+      return q4(input, position + 1, start);
     }
     else {
-      return error(input, position);
+      return error(input.substring(start, position), start);
     }
   }
 
-  Token? q4(String input, int position) {
+  Token? q4(String input, int position, int start) {
     if (position == input.length) {
-      return Token('real', input, position);
+      return Token('real', input.substring(start, position), start);
     }
 
-    String char = input.substring(position);
+    String char = input[position];
 
     if (is_digit(char)) {
-      q4(input, position++);
+      return q4(input, position + 1, start);
     }
     else if (char == 'e' || char == 'E'){
-      q5(input, position++);
+      return q5(input, position + 1, start);
     }
     else {
-      return error(input, position);
+      return Token('real', input.substring(start, position), position);
     }
   }
 
-  Token? q5(String input, int position) {
+  Token? q5(String input, int position, int start) {
     if (position == input.length) {
-      return error(input, position);
+      return error(input.substring(start, position), start);
     }
 
-    String char = input.substring(position);
+    String char = input[position];
 
     if (is_digit(char)) {
-      q7(input, position++);
+      return q7(input, position + 1, start);
     }
     else if (char == '+' || char == '-') {
-      q6(input, position++);
+      return q6(input, position + 1, start);
     }
     else {
-      error(input, position);
+      return error(input.substring(start, position), start);
     }
   }
 
-  Token? q6(String input, int position) {
+  Token? q6(String input, int position, int start) {
     if (position == input.length) {
-      return error(input, position);
+      return error(input.substring(start, position), start);
     }
 
-    String char = input.substring(position);
+    String char = input[position];
     
     if (is_digit(char)) {
-      q7(input, position++);
+      return q7(input, position + 1, start);
+    }
+    else {
+      return error(input.substring(start, position), start);
+    }
+  }
+
+  Token? q7(String input, int position, int start) {
+    if (position == input.length) {
+      return Token('cientifico', input.substring(start, position), start);
+    }
+
+    String char = input[position];
+    
+    if (is_digit(char)) {
+      return q7(input, position + 1, start);
+    }
+    else {
+      return Token('cientifico', input.substring(start, position), start);
     }
   }
 }
