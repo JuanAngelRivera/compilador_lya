@@ -127,5 +127,23 @@ class DfaNumber extends DFA {
     if (is_digit(char)) {
       q7(input, position++);
     }
+    else {
+      return error(input, position);
+    }
+  }
+
+  Token? q7(String input, int position) {
+    if (position == input.length) {
+      return Token('cientifico', input, position);
+    }
+
+    String char = input.substring(position);
+    
+    if (is_digit(char)) {
+      q7(input, position++);
+    }
+    else {
+      return error(input, position);
+    }
   }
 }
