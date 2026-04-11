@@ -2,7 +2,6 @@ import 'package:compilador_lya/classes/dfa_identifier.dart';
 import 'package:compilador_lya/classes/dfa_number.dart';
 import 'package:compilador_lya/classes/match_token.dart';
 import 'package:compilador_lya/classes/token.dart';
-import 'package:flutter/material.dart';
 
 class Lexer {
   final String input;
@@ -118,7 +117,8 @@ class Lexer {
   MatchToken? matchSimbol() {
     String char = input[position];
 
-    if (char == '=' || char == ';' || char == '{' || char == '}' || char == '(' || char == ')') {
+    if (char == '=' || char == ';' || char == '{' || char == '}' || char == '(' || char == ')' || char == '+' || char == '-'
+      || char == '*' || char == '/') {
       return MatchToken('simbolo', char, 1);
     }
     /*switch(char) {
@@ -137,6 +137,7 @@ class Lexer {
       default:
         return null;
     }*/
+    return null;
   }
 
   bool is_white_space(String char) {

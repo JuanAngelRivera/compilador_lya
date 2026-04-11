@@ -1,8 +1,6 @@
-import 'package:compilador_lya/widgets/lya_code_controller.dart';
+import 'package:compilador_lya/utils/styles.dart';
+import 'package:compilador_lya/widgets/code_editor_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_code_editor/flutter_code_editor.dart';
-import 'package:flutter_highlight/themes/monokai-sublime.dart';
-import 'package:highlight/languages/dart.dart';
 
 class EditorView extends StatefulWidget {
   const EditorView({super.key});
@@ -12,43 +10,13 @@ class EditorView extends StatefulWidget {
 }
 
 class _EditorViewState extends State<EditorView> {
-  final LyaCodeController codeController = LyaCodeController(
-    text: '''void main() {
-  print("Hello, Flutter Code Editor!");
-}''',
-    language: dart,
-  );
-
+  final Code_editor code_editor = Code_editor();
   int _currentLine = 1;
   int _currentCol = 1;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      codeController.analyzeCode();
-    });
-    codeController.addListener(_onCursorMove);
-  }
-
-  void _onCursorMove() {
-    final text = codeController.text;
-    final selection = codeController.selection;
-    if (!selection.isValid) return;
-
-    final before = text.substring(0, selection.baseOffset);
-    final lines = before.split('\n');
-    setState(() {
-      _currentLine = lines.length;
-      _currentCol = lines.last.length + 1;
-    });
-  }
-
-  @override
-  void dispose() {
-    codeController.removeListener(_onCursorMove);
-    codeController.dispose();
-    super.dispose();
   }
 
   @override
@@ -65,15 +33,15 @@ class _EditorViewState extends State<EditorView> {
   Widget _buildToolbar() {
     return Container(
       height: 40,
-      color: IDEColors.surface,
+      color: Styles.surface,
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Row(
         children: [
           _ToolbarButton(
             label: '▶  Ejecutar',
-            color: IDEColors.green,
-            textColor: IDEColors.bg,
-            onPressed: () => codeController.analyzeCode(),
+            color: Styles.green,
+            textColor: Styles.bg,
+            onPressed: () => {} 
           ),
           const SizedBox(width: 6),
           _ToolbarButton(label: '↩  Deshacer', onPressed: () {}),
@@ -85,7 +53,7 @@ class _EditorViewState extends State<EditorView> {
           Text(
             'LyA IDE',
             style: TextStyle(
-              color: IDEColors.textMuted,
+              color: Styles.textMuted,
               fontSize: 11,
               letterSpacing: 0.5,
             ),
@@ -97,20 +65,8 @@ class _EditorViewState extends State<EditorView> {
 
   Widget _buildEditor() {
     return Container(
-      color: IDEColors.bg,
-      child: CodeTheme(
-        data: CodeThemeData(styles: monokaiSublimeTheme),
-        child: SingleChildScrollView(
-          child: CodeField(
-            controller: codeController,
-            textStyle: const TextStyle(
-              fontFamily: 'monospace',
-              fontSize: 14,
-              height: 1.6,
-            ),
-          ),
-        ),
-      ),
+      color: Styles.bg,
+      child: code_editor
     );
   }
 
@@ -119,7 +75,7 @@ class _EditorViewState extends State<EditorView> {
   Widget _buildStatusBar() {
     return Container(
       height: 24,
-      color: IDEColors.accent,
+      color: Styles.accent,
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
         children: [
@@ -136,19 +92,6 @@ class _EditorViewState extends State<EditorView> {
       ),
     );
   }
-}
-
-// Paleta de colores
-
-class IDEColors {
-  static const bg = Color(0xFF1E1E2E);
-  static const surface = Color(0xFF181825);
-  static const overlay = Color(0xFF313145);
-  static const accent = Color(0xFFCBA6F7);
-  static const textMain = Color(0xFFCDD6F4);
-  static const textMuted = Color(0xFF6E6C87);
-  static const green = Color(0xFFA6E3A1);
-  static const red = Color(0xFFF38BA8);
 }
 
 class _ToolbarButton extends StatelessWidget {
@@ -169,8 +112,8 @@ class _ToolbarButton extends StatelessWidget {
     return TextButton(
       onPressed: onPressed,
       style: TextButton.styleFrom(
-        backgroundColor: color ?? IDEColors.overlay,
-        foregroundColor: textColor ?? IDEColors.textMain,
+        backgroundColor: color ?? Styles.overlay,
+        foregroundColor: textColor ?? Styles.textMain,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
         minimumSize: const Size(0, 28),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
@@ -190,7 +133,7 @@ class _ToolbarSeparator extends StatelessWidget {
       width: 0.5,
       height: 20,
       margin: const EdgeInsets.symmetric(horizontal: 8),
-      color: IDEColors.overlay,
+      color: Styles.overlay,
     );
   }
 }
@@ -209,7 +152,7 @@ class _StatusItem extends StatelessWidget {
         if (icon != null) ...[
           Text(
             icon!,
-            style: const TextStyle(fontSize: 11, color: IDEColors.bg),
+            style: const TextStyle(fontSize: 11, color: Styles.bg),
           ),
           const SizedBox(width: 4),
         ],
@@ -217,7 +160,7 @@ class _StatusItem extends StatelessWidget {
           label,
           style: const TextStyle(
             fontSize: 11,
-            color: IDEColors.bg,
+            color: Styles.bg,
             fontFamily: 'monospace',
           ),
         ),

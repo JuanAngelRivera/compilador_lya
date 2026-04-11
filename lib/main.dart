@@ -1,4 +1,5 @@
 import 'package:compilador_lya/views/editor_view.dart';
+import 'package:compilador_lya/widgets/code_editor_widget.dart';
 import 'package:flutter/material.dart';
 
 void main() {
