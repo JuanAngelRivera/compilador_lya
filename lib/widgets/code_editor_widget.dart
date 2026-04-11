@@ -5,10 +5,10 @@ import 'package:compilador_lya/classes/token.dart';
 import 'package:compilador_lya/utils/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:highlight/languages/tex.dart';
 
 class Code_editor extends StatefulWidget {
-  const Code_editor({super.key});
+  final TextEditingController controller;
+  const Code_editor({super.key, required this.controller});
 
   @override
   State<Code_editor> createState() => _Code_editorState();
@@ -16,20 +16,19 @@ class Code_editor extends StatefulWidget {
 
 class _Code_editorState extends State<Code_editor> {
 
-  TextEditingController controller = TextEditingController();
   final ScrollController scroll_controller = ScrollController();
 
   List<Token> tokens = [];
   Timer? debounce;
 
   int get line_count {
-    return '\n'.allMatches(controller.text).length + 1;
+    return '\n'.allMatches(widget.controller.text).length + 1;
   }
   @override
   void initState() {
     super.initState();
 
-    controller.addListener(() {
+    widget.controller.addListener(() {
       update_tokens();
     });
   }
@@ -38,7 +37,7 @@ class _Code_editorState extends State<Code_editor> {
     debounce?.cancel();
     debounce = Timer(Duration(milliseconds: 100), () {
       setState(() {
-        tokens = Lexer(controller.text).tokenize();
+        tokens = Lexer(widget.controller.text).tokenize();
       });
     });
   }
@@ -63,8 +62,8 @@ class _Code_editorState extends State<Code_editor> {
                     onKeyEvent: (node, event) {
                       if (event is KeyDownEvent &&
                           event.logicalKey == LogicalKeyboardKey.tab) {
-                        final selection = controller.selection;
-                        final text = controller.text;
+                        final selection = widget.controller.selection;
+                        final text = widget.controller.text;
                         const tab_spaces = '    ';
               
                         if (selection.isValid) {
@@ -73,7 +72,7 @@ class _Code_editorState extends State<Code_editor> {
                             selection.end,
                             tab_spaces,
                           );
-                          controller.value = TextEditingValue(
+                          widget.controller.value = TextEditingValue(
                             text: newText,
                             selection: TextSelection.collapsed(
                               offset: selection.start + tab_spaces.length,
@@ -85,7 +84,7 @@ class _Code_editorState extends State<Code_editor> {
                       return KeyEventResult.ignored;
                     },
                     child: TextField(
-                      controller: controller,
+                      controller: widget.controller,
                       maxLines: null,
                       style: Styles.code_editor_base.copyWith(
                         color: Colors.transparent,
@@ -115,7 +114,7 @@ class _Code_editorState extends State<Code_editor> {
       if (current < t.position) {
         spans.add(
           TextSpan(
-            text: normalize(controller.text.substring(current, t.position)),
+            text: normalize(widget.controller.text.substring(current, t.position)),
             style: Styles.code_editor_base,
           ),
         );
@@ -136,10 +135,10 @@ class _Code_editorState extends State<Code_editor> {
       current = t.position + t.length;
     }
 
-    if (current < controller.text.length) {
+    if (current < widget.controller.text.length) {
       spans.add(
         TextSpan(
-          text: controller.text.substring(current),
+          text: widget.controller.text.substring(current),
           style: Styles.code_editor_base,
         ),
       );
@@ -168,13 +167,13 @@ class _Code_editorState extends State<Code_editor> {
   }
 
   int get_current_line() {
-    int cursor = controller.selection.start;
+    int cursor = widget.controller.selection.start;
 
-    if (cursor < 0) {
+    if (cursor < 0 || cursor > widget.controller.text.length) {
       return 1;
     }
 
-    String text_before_cursor = controller.text.substring(0, cursor);
+    String text_before_cursor = widget.controller.text.substring(0, cursor);
     return  '\n'.allMatches(text_before_cursor).length + 1;
   }
 

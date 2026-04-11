@@ -1,22 +1,25 @@
+import 'package:compilador_lya/classes/lexer.dart';
 import 'package:compilador_lya/utils/styles.dart';
 import 'package:compilador_lya/widgets/code_editor_widget.dart';
 import 'package:flutter/material.dart';
 
 class EditorView extends StatefulWidget {
-  const EditorView({super.key});
+  final TextEditingController controller;
+  const EditorView({super.key, required this.controller});
 
   @override
   State<EditorView> createState() => _EditorViewState();
 }
 
 class _EditorViewState extends State<EditorView> {
-  final Code_editor code_editor = Code_editor();
+  late Code_editor code_editor;
   int _currentLine = 1;
   int _currentCol = 1;
 
   @override
   void initState() {
     super.initState();
+    code_editor = Code_editor(controller: widget.controller);
   }
 
   @override
@@ -43,12 +46,12 @@ class _EditorViewState extends State<EditorView> {
             textColor: Styles.bg,
             onPressed: () => {} 
           ),
-          const SizedBox(width: 6),
+          /*const SizedBox(width: 6),
           _ToolbarButton(label: '↩  Deshacer', onPressed: () {}),
           const SizedBox(width: 6),
           _ToolbarButton(label: '↪  Rehacer', onPressed: () {}),
           const _ToolbarSeparator(),
-          _ToolbarButton(label: '⚙  Configurar', onPressed: () {}),
+          _ToolbarButton(label: '⚙  Configurar', onPressed: () {}),*/
           const Spacer(),
           Text(
             'LyA IDE',
