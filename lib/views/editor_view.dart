@@ -103,7 +103,7 @@ class _EditorViewState extends State<EditorView> {
   Widget _buildStatusBar() {
     return Container(
       height: 24,
-      color: Styles.accent,
+      color: _errorMessage == 'Sin errores' ? Styles.accent : Styles.red,
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
         children: [
