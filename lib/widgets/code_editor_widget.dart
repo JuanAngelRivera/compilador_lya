@@ -15,8 +15,8 @@ class Code_editor extends StatefulWidget {
 }
 
 class _Code_editorState extends State<Code_editor> {
-
   final ScrollController scroll_controller = ScrollController();
+  final ScrollController scroll_controller_h = ScrollController();
 
   List<Token> tokens = [];
   Timer? debounce;
@@ -24,6 +24,7 @@ class _Code_editorState extends State<Code_editor> {
   int get line_count {
     return '\n'.allMatches(widget.controller.text).length + 1;
   }
+
   @override
   void initState() {
     super.initState();
@@ -47,60 +48,60 @@ class _Code_editorState extends State<Code_editor> {
     return Container(
       color: Styles.overlay,
       padding: EdgeInsets.all(12),
-      child: SingleChildScrollView(
+      // 1. SCROLLBAR VERTICAL (Padre de todo)
+      child: Scrollbar(
         controller: scroll_controller,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            build_line_numbers(),
-        
-            Expanded(
-              child: Stack(
-                children: [
-                  RichText(text: build_text()),
-                  Focus(
-                    onKeyEvent: (node, event) {
-                      if (event is KeyDownEvent &&
-                          event.logicalKey == LogicalKeyboardKey.tab) {
-                        final selection = widget.controller.selection;
-                        final text = widget.controller.text;
-                        const tab_spaces = '    ';
-              
-                        if (selection.isValid) {
-                          final newText = text.replaceRange(
-                            selection.start,
-                            selection.end,
-                            tab_spaces,
-                          );
-                          widget.controller.value = TextEditingValue(
-                            text: newText,
-                            selection: TextSelection.collapsed(
-                              offset: selection.start + tab_spaces.length,
+        thumbVisibility: true,
+        child: SingleChildScrollView(
+          controller: scroll_controller,
+          scrollDirection: Axis.vertical,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              build_line_numbers(),
+              Expanded(
+                child: Scrollbar(
+                  controller: scroll_controller_h,
+                  thumbVisibility: true,
+                  notificationPredicate: (n) =>
+                      n.depth == 1,
+                  child: SingleChildScrollView(
+                    controller: scroll_controller_h,
+                    scrollDirection: Axis.horizontal,
+                    child: IntrinsicWidth(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minWidth: MediaQuery.of(context).size.width + 100,
+                        ),
+                        child: Stack(
+                          children: [
+                            RichText(softWrap: false, text: build_text()),
+                            Focus(
+                              onKeyEvent: (node, event) {
+                                return KeyEventResult.ignored;
+                              },
+                              child: TextField(
+                                controller: widget.controller,
+                                maxLines: null,
+                                style: Styles.code_editor_base.copyWith(
+                                  color: Colors.transparent,
+                                ),
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  isCollapsed: true,
+                                  contentPadding: EdgeInsets.zero,
+                                ),
+                              ),
                             ),
-                          );
-                        }
-                        return KeyEventResult.handled;
-                      }
-                      return KeyEventResult.ignored;
-                    },
-                    child: TextField(
-                      controller: widget.controller,
-                      maxLines: null,
-                      style: Styles.code_editor_base.copyWith(
-                        color: Colors.transparent,
-                      ),
-                      cursorColor: Colors.white,
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        isCollapsed: true,
-                        contentPadding: EdgeInsets.zero,
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -114,7 +115,9 @@ class _Code_editorState extends State<Code_editor> {
       if (current < t.position) {
         spans.add(
           TextSpan(
-            text: normalize(widget.controller.text.substring(current, t.position)),
+            text: normalize(
+              widget.controller.text.substring(current, t.position),
+            ),
             style: Styles.code_editor_base,
           ),
         );
@@ -174,7 +177,7 @@ class _Code_editorState extends State<Code_editor> {
     }
 
     String text_before_cursor = widget.controller.text.substring(0, cursor);
-    return  '\n'.allMatches(text_before_cursor).length + 1;
+    return '\n'.allMatches(text_before_cursor).length + 1;
   }
 
   Container build_line_numbers() {
@@ -190,7 +193,8 @@ class _Code_editorState extends State<Code_editor> {
           return Text(
             '${index + 1}',
             style: Styles.code_editor_base.copyWith(
-              color: (index + 1 == current_line) ? Colors.white : Colors.grey),
+              color: (index + 1 == current_line) ? Colors.white : Colors.grey,
+            ),
           );
         }),
       ),
