@@ -1,7 +1,8 @@
-import 'package:compilador_lya/classes/lexer.dart';
+import 'package:compilador_lya/classes/token.dart';
 import 'package:compilador_lya/utils/styles.dart';
 import 'package:compilador_lya/widgets/code_editor_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 
 class EditorView extends StatefulWidget {
   final TextEditingController controller;
@@ -16,10 +17,34 @@ class _EditorViewState extends State<EditorView> {
   int _currentLine = 1;
   int _currentCol = 1;
 
+  String _errorMessage = 'Sin errores';
+
+  void _onTokensChanged(List<Token> tokens) {
+    final error = tokens.firstWhereOrNull((t) => t.type == 'error');
+
+    setState(() {
+      if (error != null) {
+        _errorMessage = "Error en Línea ${error.line}, columna ${error.column}, en '${error.lexeme}'";
+      }
+      else {
+        _errorMessage = 'Sin errores';
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    code_editor = Code_editor(controller: widget.controller);
+    code_editor = Code_editor(
+      controller: widget.controller,
+      onCursorChanged: (line, column) {
+        setState(() {
+          _currentLine = line;
+          _currentCol = column;
+        });
+      },
+      onTokensChanged:  _onTokensChanged,
+    );
   }
 
   @override
@@ -82,7 +107,9 @@ class _EditorViewState extends State<EditorView> {
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
         children: [
-          _StatusItem(icon: '✓', label: 'Sin errores'),
+          _StatusItem(
+            icon: _errorMessage == 'Sin errores' ? '✓' : '✗', 
+            label: _errorMessage),
           const SizedBox(width: 16),
           _StatusItem(label: 'LyA'),
           const Spacer(),

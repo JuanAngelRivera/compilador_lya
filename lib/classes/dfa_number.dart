@@ -31,8 +31,8 @@ class DfaNumber extends DFA {
 
   MatchToken? q1(String input, int position, int start) {
     if (position == input.length) {
-      return MatchToken('numero', input.substring(start, position), position - start);
-      return MatchToken('entero', input.substring(start, position), position - start);
+      return MatchToken('numero', input.substring(start, position));
+      return MatchToken('entero', input.substring(start, position));
     }
 
     String char = input[position];
@@ -47,8 +47,8 @@ class DfaNumber extends DFA {
       return q3(input, position + 1, start);
     }
     else {
-      return MatchToken('numero', input.substring(start, position), position - start);
-      return MatchToken('entero', input.substring(start, position), position - start);
+      return MatchToken('numero', input.substring(start, position));
+      return MatchToken('entero', input.substring(start, position));
     }
   }
   
@@ -87,8 +87,8 @@ class DfaNumber extends DFA {
 
   MatchToken? q4(String input, int position, int start) {
     if (position == input.length) {
-      return MatchToken('numero', input.substring(start, position), position - start);
-      return MatchToken('real', input.substring(start, position), position - start);
+      return MatchToken('numero', input.substring(start, position));
+      return MatchToken('real', input.substring(start, position));
     }
 
     String char = input[position];
@@ -100,8 +100,8 @@ class DfaNumber extends DFA {
       return q5(input, position + 1, start);
     }
     else {
-      return MatchToken('numero', input.substring(start, position), position - start);
-      return MatchToken('real', input.substring(start, position), position - start);
+      return MatchToken('numero', input.substring(start, position));
+      return MatchToken('real', input.substring(start, position));
     }
   }
 
@@ -140,8 +140,8 @@ class DfaNumber extends DFA {
 
   MatchToken? q7(String input, int position, int start) {
     if (position == input.length) {
-      return MatchToken('numero', input.substring(start, position), position - start);
-      return MatchToken('cientifico', input.substring(start, position), position - start);
+      return MatchToken('numero', input.substring(start, position));
+      return MatchToken('cientifico', input.substring(start, position));
     }
 
     String char = input[position];
@@ -150,8 +150,8 @@ class DfaNumber extends DFA {
       return q7(input, position + 1, start);
     }
     else {
-      return MatchToken('numero', input.substring(start, position), position - start);
-      return MatchToken('cientifico', input.substring(start, position), position - start);
+      return MatchToken('numero', input.substring(start, position));
+      return MatchToken('cientifico', input.substring(start, position));
     }
   }
 }

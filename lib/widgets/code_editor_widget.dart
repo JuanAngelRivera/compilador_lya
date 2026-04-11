@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:compilador_lya/classes/lexer.dart';
 import 'package:compilador_lya/classes/token.dart';
 import 'package:compilador_lya/utils/styles.dart';
@@ -8,7 +7,15 @@ import 'package:flutter/services.dart';
 
 class Code_editor extends StatefulWidget {
   final TextEditingController controller;
-  const Code_editor({super.key, required this.controller});
+  final Function(int line, int col)? onCursorChanged;
+  final Function(List<Token>)? onTokensChanged;
+
+  const Code_editor({
+    super.key,
+    required this.controller,
+    required this.onCursorChanged,
+    required this.onTokensChanged,
+  });
 
   @override
   State<Code_editor> createState() => _Code_editorState();
@@ -30,6 +37,10 @@ class _Code_editorState extends State<Code_editor> {
     super.initState();
 
     widget.controller.addListener(() {
+      final line = get_current_line();
+      final column = get_current_column();
+
+      widget.onCursorChanged?.call(line, column);
       update_tokens();
     });
   }
@@ -39,6 +50,7 @@ class _Code_editorState extends State<Code_editor> {
     debounce = Timer(Duration(milliseconds: 100), () {
       setState(() {
         tokens = Lexer(widget.controller.text).tokenize();
+        widget.onTokensChanged?.call(tokens);
       });
     });
   }
@@ -63,8 +75,7 @@ class _Code_editorState extends State<Code_editor> {
                 child: Scrollbar(
                   controller: scroll_controller_h,
                   thumbVisibility: true,
-                  notificationPredicate: (n) =>
-                      n.depth == 1,
+                  notificationPredicate: (n) => n.depth == 1,
                   child: SingleChildScrollView(
                     controller: scroll_controller_h,
                     scrollDirection: Axis.horizontal,
@@ -78,6 +89,31 @@ class _Code_editorState extends State<Code_editor> {
                             RichText(softWrap: false, text: build_text()),
                             Focus(
                               onKeyEvent: (node, event) {
+                                if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.tab) {
+                                  final selection = widget.controller.selection;
+                                  final text = widget.controller.text;
+                                  const tabSpaces = '    ';
+
+                                  if (selection.isValid) {
+                                    final newText = text.replaceRange(
+                                      selection.start,
+                                      selection.end,
+                                      tabSpaces,
+                                    );
+
+                                    widget.controller.value = TextEditingValue(
+                                      text: newText,
+                                      selection: TextSelection.collapsed(
+                                        offset:
+                                            selection.start + tabSpaces.length,
+                                      ),
+                                    );
+                                  }
+
+                                  return KeyEventResult
+                                      .handled; // 🔥 IMPORTANTE
+                                }
+
                                 return KeyEventResult.ignored;
                               },
                               child: TextField(
@@ -161,9 +197,9 @@ class _Code_editorState extends State<Code_editor> {
       case 'identificador':
         return Colors.white;
       case 'numero':
-        return Colors.orange;
+        return Colors.greenAccent;
       case 'simbolo':
-        return Colors.purple;
+        return Colors.yellow;
       default:
         return Colors.red;
     }
@@ -178,6 +214,19 @@ class _Code_editorState extends State<Code_editor> {
 
     String text_before_cursor = widget.controller.text.substring(0, cursor);
     return '\n'.allMatches(text_before_cursor).length + 1;
+  }
+
+  int get_current_column() {
+    int cursor = widget.controller.selection.start;
+
+    if (cursor < 0 || cursor > widget.controller.text.length) {
+      return 1;
+    }
+
+    String text_before_cursor = widget.controller.text.substring(0, cursor);
+    int last_newline = text_before_cursor.lastIndexOf('\n');
+
+    return cursor - (last_newline + 1) + 1;
   }
 
   Container build_line_numbers() {

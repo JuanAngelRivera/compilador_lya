@@ -49,7 +49,7 @@ class Lexer {
     'publico', //public
     'retorna', //return
     'short', 
-    'statico', //static
+    'estatico', //static
     'pf_estricto', //estrictfp
     'super',
     'compara', //switch
@@ -63,6 +63,12 @@ class Lexer {
     'volatil', //volatile
     'mientras' //while
   ];
+
+  List<String> simbols = ['=', ';', '{', '}', '(', ')', '+', '-', '*', '/', '[', ']'];
+
+  bool is_simbol (String char) {
+    return simbols.contains(char);
+  }
 
   List<Token> tokenize() {
     List<Token> tokens = [];
@@ -80,16 +86,25 @@ class Lexer {
       MatchToken? match = matchNumber() ?? matchIdentifier() ?? matchSimbol();
 
       if (match == null) {
+        int error_start = position;
+        int error_line = line;
+        int error_column = column;
+
+        while(position < input.length && !is_white_space(input[position]) && !is_simbol(input[position])) {
+          advance();
+        }
+
+        String error_lexeme = input.substring(error_start, position);
+
         tokens.add(
-          Token('error', input[position], position, line, column)
+          Token('error', error_lexeme, error_start, error_line, error_column)
         );
 
-        advance();
         continue;
       }
 
       if (reserved_words.contains(match.lexeme)) {
-        match = MatchToken('reservada', match.lexeme, match.length);
+        match = MatchToken('reservada', match.lexeme);
       }
 
       Token full_token = Token(match.type, match.lexeme, start_position, start_line, start_column);
@@ -117,10 +132,9 @@ class Lexer {
   MatchToken? matchSimbol() {
     String char = input[position];
 
-    if (char == '=' || char == ';' || char == '{' || char == '}' || char == '(' || char == ')' || char == '+' || char == '-'
-      || char == '*' || char == '/') {
-      return MatchToken('simbolo', char, 1);
-    }
+    if (is_simbol(char)) {
+      return MatchToken('simbolo', char);
+    } else {
     /*switch(char) {
       case '=':
         return MatchToken('igual', char, 1);
@@ -138,6 +152,7 @@ class Lexer {
         return null;
     }*/
     return null;
+    }
   }
 
   bool is_white_space(String char) {

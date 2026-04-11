@@ -1,0 +1,17 @@
+publico clase cuadrado hereda figura {
+    numero_lados = 4;
+    lado = 2.4;
+
+    estatico publico vacio principal (String [] argumentos) {
+        area();
+        perimetro();
+    }
+
+    double area() {
+        retorna lado * lado;
+    }
+
+    double perimetro() {
+        retorna lado * numero_lados;
+    }
+}
