@@ -1,0 +1,7 @@
+paquete figuras_geometricas;
+
+clase principal {
+    estatico publico vacio principal(String [] args) {
+        //codigo
+    }
+}

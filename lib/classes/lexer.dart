@@ -65,23 +65,25 @@ class Lexer {
     'mientras', //while
   ];
 
-  List<String> simbols = [
-    '=',
-    ';',
-    '{',
-    '}',
-    '(',
-    ')',
-    '+',
-    '-',
-    '*',
-    '/',
-    '[',
-    ']',
+  List<String> symbols = [
+    // asignación
+    '=', '+=', '-=', '*=', '/=', '%=',
+    // aritméticos
+    '+', '-', '*', '/', '%', '++', '--',
+    // relacionales
+    '<', '>', '<=', '>=', '==', '!=',
+    // lógicos
+    '&&', '||', '!',
+    // delimitadores
+    '(', ')', '{', '}', '[', ']', ';', ',',
+    // acceso / otros
+    '.', ':', '?', '@',
+    //string
+    '"', '\''
   ];
 
-  bool is_simbol(String char) {
-    return simbols.contains(char);
+  bool is_symbol(String char) {
+    return symbols.contains(char);
   }
 
   List<Token> tokenize() {
@@ -108,7 +110,7 @@ class Lexer {
 
         while (position < input.length &&
             !is_white_space(input[position]) &&
-            !is_simbol(input[position])) {
+            !is_symbol(input[position])) {
           advance();
         }
 
@@ -156,9 +158,9 @@ class Lexer {
   MatchToken? matchSimbol() {
     String char = input[position];
 
-    if (is_simbol(char)) {
+    if (is_symbol(char)) {
       return MatchToken('simbolo', char);
-    } else {
+    }
       /*switch(char) {
       case '=':
         return MatchToken('igual', char, 1);
@@ -176,7 +178,6 @@ class Lexer {
         return null;
     }*/
       return null;
-    }
   }
 
   bool is_white_space(String char) {
@@ -219,7 +220,7 @@ class Lexer {
 
         advance();
 
-        while(position < input.length && !is_white_space(input[position]) && !is_simbol(input[position])) {
+        while(position < input.length && !is_white_space(input[position]) && !is_symbol(input[position])) {
           advance();
         }
 

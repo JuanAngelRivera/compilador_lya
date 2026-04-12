@@ -1,16 +1,19 @@
-publico clase cuadrado hereda figura {
-    numero_lados = 4;
-    lado = 2.4;
+paquete figuras_geometricas;
 
-    estatico publico vacio principal (String [] argumentos) {
-        area();
-        perimetro();
+publico clase cuadrado hereda figura {
+
+    cuadrado(double lado) {
+        super.figura();
+        super.lado = lado;
+        super.numero_lados = 4;
     }
 
+    @override
     double area() {
         retorna lado * lado;
     }
 
+    @override
     double perimetro() {
         retorna lado * numero_lados;
     }

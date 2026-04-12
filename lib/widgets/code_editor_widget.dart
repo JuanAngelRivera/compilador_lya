@@ -247,8 +247,8 @@ class Code_editorState extends State<Code_editor> {
 
     return Container(
       width: 40,
-      padding: EdgeInsets.symmetric(horizontal: 8),
-      color: Colors.grey.shade800,
+      padding: EdgeInsets.only(right: 5),
+      color: Styles.overlay,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: List.generate(line_count, (index) {

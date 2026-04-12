@@ -22,6 +22,9 @@ class DfaNumber extends DFA {
     else if (char == '+' || char == '-') {
       return q2(input, position + 1, start);
     }
+    else if (char == '.') {
+      return q3(input, position + 1, start);
+    }
     else {
       return null;
     }
