@@ -1,3 +1,4 @@
+import 'package:compilador_lya/classes/symb_table.dart';
 import 'package:compilador_lya/utils/styles.dart';
 import 'package:compilador_lya/widgets/code_editor_widget.dart';
 import 'package:flutter/material.dart';
@@ -41,7 +42,16 @@ class _EditorViewState extends State<EditorView> {
             label: '▶  Ejecutar',
             color: Styles.green,
             textColor: Styles.bg,
-            onPressed: () => {} 
+            onPressed: () => {},
+          ),
+          _ToolbarButton(
+            label: '🔍 Test tabla',
+            onPressed: () async {
+              final table = await SymbolTableHash.create();
+              print('Tabla creada');
+              print('Ruta: ${table.filePath}');
+              table.printHashTable();
+            },
           ),
           const SizedBox(width: 6),
           _ToolbarButton(label: '↩  Deshacer', onPressed: () {}),
@@ -64,10 +74,7 @@ class _EditorViewState extends State<EditorView> {
   }
 
   Widget _buildEditor() {
-    return Container(
-      color: Styles.bg,
-      child: code_editor
-    );
+    return Container(color: Styles.bg, child: code_editor);
   }
 
   // barra de estatus
@@ -150,10 +157,7 @@ class _StatusItem extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (icon != null) ...[
-          Text(
-            icon!,
-            style: const TextStyle(fontSize: 11, color: Styles.bg),
-          ),
+          Text(icon!, style: const TextStyle(fontSize: 11, color: Styles.bg)),
           const SizedBox(width: 4),
         ],
         Text(

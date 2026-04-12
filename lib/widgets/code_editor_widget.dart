@@ -5,7 +5,6 @@ import 'package:compilador_lya/classes/token.dart';
 import 'package:compilador_lya/utils/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:highlight/languages/tex.dart';
 
 class Code_editor extends StatefulWidget {
   const Code_editor({super.key});

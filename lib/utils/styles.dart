@@ -6,10 +6,10 @@ class Styles {
   static const surface   = Color(0xFF181825);
   static const overlay   = Color(0xFF313145);
   static const accent    = Color(0xFFCBA6F7); // lila
-  static const textMain  = Color(0xFFCDD6F4);
-  static const textMuted = Color(0xFF6E6C87);
+  static const textMain  = Color(0xFF6E6C87);
   static const green     = Color(0xFFA6E3A1);
-  static const red       = Color(0xFFF38BA8);
+  static const red       = Color(0xFFCDD6F4);
+  static const textMuted = Color(0xFFF38BA8);
 
   static const Size buttonSize = Size(80, 28);
 

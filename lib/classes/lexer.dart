@@ -1,6 +1,7 @@
 import 'package:compilador_lya/classes/dfa_identifier.dart';
 import 'package:compilador_lya/classes/dfa_number.dart';
 import 'package:compilador_lya/classes/match_token.dart';
+import 'package:compilador_lya/classes/symb_table.dart';
 import 'package:compilador_lya/classes/token.dart';
 
 class Lexer {
@@ -11,25 +12,25 @@ class Lexer {
 
   Lexer(this.input);
 
-  List<String> reserved_words = [
+  static List<String> reserved_words = [
     'abstracto', //abstract
     'asume', //assert
     'booleano', //boolean
     'rompe', //break
-    'byte', 
+    'byte',
     'caso', //case
     'atrapa', //catch
-    'char', 
+    'char',
     'clase', //class
     'constante', //const
     'continua', //continue
     'por_defecto', //default
     'haz', //do
-    'double', 
+    'double',
     'si_no', //else
     'enumerado', //enum
     'hereda', //extends
-    'final', 
+    'final',
     'finalmente', //finally
     'float',
     'para', //for
@@ -38,7 +39,7 @@ class Lexer {
     'implementa', //implements
     'importa', //import
     'instancia_de', //instanceof
-    'int', 
+    'int',
     'interfaz', //interface
     'long',
     'nativo', //native
@@ -48,7 +49,7 @@ class Lexer {
     'protegido', //protected
     'publico', //public
     'retorna', //return
-    'short', 
+    'short',
     'statico', //static
     'pf_estricto', //estrictfp
     'super',
@@ -61,7 +62,7 @@ class Lexer {
     'intenta', //try
     'vacio', //void
     'volatil', //volatile
-    'mientras' //while
+    'mientras', //while
   ];
 
   List<Token> tokenize() {
@@ -80,9 +81,7 @@ class Lexer {
       MatchToken? match = matchNumber() ?? matchIdentifier() ?? matchSimbol();
 
       if (match == null) {
-        tokens.add(
-          Token('error', input[position], position, line, column)
-        );
+        tokens.add(Token('error', input[position], position, line, column));
 
         advance();
         continue;
@@ -92,8 +91,14 @@ class Lexer {
         match = MatchToken('reservada', match.lexeme, match.length);
       }
 
-      Token full_token = Token(match.type, match.lexeme, start_position, start_line, start_column);
-      
+      Token full_token = Token(
+        match.type,
+        match.lexeme,
+        start_position,
+        start_line,
+        start_column,
+      );
+
       tokens.add(full_token);
 
       for (int i = 0; i < match.length; i++) {
@@ -117,8 +122,16 @@ class Lexer {
   MatchToken? matchSimbol() {
     String char = input[position];
 
-    if (char == '=' || char == ';' || char == '{' || char == '}' || char == '(' || char == ')' || char == '+' || char == '-'
-      || char == '*' || char == '/') {
+    if (char == '=' ||
+        char == ';' ||
+        char == '{' ||
+        char == '}' ||
+        char == '(' ||
+        char == ')' ||
+        char == '+' ||
+        char == '-' ||
+        char == '*' ||
+        char == '/') {
       return MatchToken('simbolo', char, 1);
     }
     /*switch(char) {
@@ -148,11 +161,80 @@ class Lexer {
     if (input[position] == '\n') {
       line++;
       column = 1;
-    }
-    else {
+    } else {
       column++;
     }
     position++;
   }
-}
 
+  //Registro de tokens en la tabla de simbolos
+
+  Future<List<Token>> tokenizeAndRegister(SymbolTableHash symbolTable) async {
+    List<Token> tokens = [];
+    int absolutePosition = 0;
+
+    while (position < input.length) {
+      if (is_white_space(input[position])) {
+        advance();
+        absolutePosition++;
+        continue;
+      }
+
+      int startPosition = absolutePosition;
+      int startLine = line;
+      int startColumn = column;
+
+      MatchToken? match = matchNumber() ?? matchIdentifier() ?? matchSimbol();
+
+      if (match == null) {
+        Token errorToken = Token(
+          'error',
+          input[position],
+          position,
+          line,
+          column,
+        );
+        tokens.add(errorToken);
+
+        await symbolTable.registerToken(
+
+          lexeme: input[position],
+          type: 'error',
+          position: startPosition,
+          line: startLine,
+          column: startColumn,
+        );
+
+        advance();
+        absolutePosition++;
+        continue;
+      }
+
+      String finalType = match.type;
+      if (reserved_words.contains(match.lexeme)) {
+        finalType = 'reservada';
+      }
+
+      tokens.add(
+        Token(finalType, match.lexeme, startPosition, startLine, startColumn),
+      );
+
+      await symbolTable.registerToken(
+
+        lexeme: match.lexeme,
+        type: finalType,
+        position: startPosition,
+        line: startLine,
+        column: startColumn,
+        value: finalType == 'numero' ? num.tryParse(match.lexeme) : null,
+      );
+
+      for (int i = 0; i < match.length; i++) {
+        advance();
+        absolutePosition++;
+      }
+    }
+
+    return tokens;
+  }
+}
