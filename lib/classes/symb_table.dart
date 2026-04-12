@@ -74,7 +74,7 @@ class SymbolTableHash {
 
   final Map<int, int> _idToOffset = {};
 
-  String get filePath => _filePath; // ← agrega esta línea aquí
+  String get filePath => _filePath;
 
   SymbolTableHash([int initialSize = 1000])
     : _tableSize = initialSize,
@@ -87,7 +87,7 @@ class SymbolTableHash {
   }
 
   Future<void> _initialize() async {
-    // Usa el directorio actual del proyecto directamente
+
     final dir = Directory.current.path;
     _filePath = '$dir/symbol_table.json';
 

@@ -49,7 +49,7 @@ class Lexer {
     'protegido', //protected
     'publico', //public
     'retorna', //return
-    'short', 
+    'short',
     'estatico', //static
     'pf_estricto', //estrictfp
     'super',
@@ -65,9 +65,22 @@ class Lexer {
     'mientras', //while
   ];
 
-  List<String> simbols = ['=', ';', '{', '}', '(', ')', '+', '-', '*', '/', '[', ']'];
+  List<String> simbols = [
+    '=',
+    ';',
+    '{',
+    '}',
+    '(',
+    ')',
+    '+',
+    '-',
+    '*',
+    '/',
+    '[',
+    ']',
+  ];
 
-  bool is_simbol (String char) {
+  bool is_simbol(String char) {
     return simbols.contains(char);
   }
 
@@ -93,14 +106,16 @@ class Lexer {
 
         advance();
 
-        while(position < input.length && !is_white_space(input[position]) && !is_simbol(input[position])) {
+        while (position < input.length &&
+            !is_white_space(input[position]) &&
+            !is_simbol(input[position])) {
           advance();
         }
 
         String error_lexeme = input.substring(error_start, position);
 
         tokens.add(
-          Token('error', error_lexeme, error_start, error_line, error_column)
+          Token('error', error_lexeme, error_start, error_line, error_column),
         );
 
         continue;
@@ -144,7 +159,7 @@ class Lexer {
     if (is_simbol(char)) {
       return MatchToken('simbolo', char);
     } else {
-    /*switch(char) {
+      /*switch(char) {
       case '=':
         return MatchToken('igual', char, 1);
       case ';':
@@ -160,7 +175,7 @@ class Lexer {
       default:
         return null;
     }*/
-    return null;
+      return null;
     }
   }
 
@@ -236,15 +251,16 @@ class Lexer {
         Token(finalType, match.lexeme, startPosition, startLine, startColumn),
       );
 
-      await symbolTable.registerToken(
-
-        lexeme: match.lexeme,
-        type: finalType,
-        position: startPosition,
-        line: startLine,
-        column: startColumn,
-        value: finalType == 'numero' ? num.tryParse(match.lexeme) : null,
-      );
+      if (finalType != 'reservada' && !symbolTable.existsLexeme(match.lexeme)) {
+        await symbolTable.registerToken(
+          lexeme: match.lexeme,
+          type: finalType,
+          position: startPosition,
+          line: startLine,
+          column: startColumn,
+          value: finalType == 'numero' ? num.tryParse(match.lexeme) : null,
+        );
+      }
 
       for (int i = 0; i < match.length; i++) {
         advance();

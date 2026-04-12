@@ -35,7 +35,7 @@
 {"id":35,"lexeme":"publico","type":"reservada","position":0,"line":34,"column":0,"value":null,"scope":null,"dataType":null,"memoryAddress":null}
 {"id":36,"lexeme":"retorna","type":"reservada","position":0,"line":35,"column":0,"value":null,"scope":null,"dataType":null,"memoryAddress":null}
 {"id":37,"lexeme":"short","type":"reservada","position":0,"line":36,"column":0,"value":null,"scope":null,"dataType":null,"memoryAddress":null}
-{"id":38,"lexeme":"statico","type":"reservada","position":0,"line":37,"column":0,"value":null,"scope":null,"dataType":null,"memoryAddress":null}
+{"id":38,"lexeme":"estatico","type":"reservada","position":0,"line":37,"column":0,"value":null,"scope":null,"dataType":null,"memoryAddress":null}
 {"id":39,"lexeme":"pf_estricto","type":"reservada","position":0,"line":38,"column":0,"value":null,"scope":null,"dataType":null,"memoryAddress":null}
 {"id":40,"lexeme":"super","type":"reservada","position":0,"line":39,"column":0,"value":null,"scope":null,"dataType":null,"memoryAddress":null}
 {"id":41,"lexeme":"compara","type":"reservada","position":0,"line":40,"column":0,"value":null,"scope":null,"dataType":null,"memoryAddress":null}
