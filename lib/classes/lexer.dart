@@ -91,6 +91,8 @@ class Lexer {
         int error_line = line;
         int error_column = column;
 
+        advance();
+
         while(position < input.length && !is_white_space(input[position]) && !is_simbol(input[position])) {
           advance();
         }
@@ -163,7 +165,7 @@ class Lexer {
   }
 
   bool is_white_space(String char) {
-    return char == ' ' || char == '\n' || char == '\t';
+    return char == ' ' || char == '\n' || char == '\t' || char == '\r';
   }
 
   void advance() {
