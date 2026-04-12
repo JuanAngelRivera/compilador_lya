@@ -198,25 +198,31 @@ class Lexer {
       MatchToken? match = matchNumber() ?? matchIdentifier() ?? matchSimbol();
 
       if (match == null) {
-        Token errorToken = Token(
-          'error',
-          input[position],
-          position,
-          line,
-          column,
+        int error_start = position;
+        int error_line = line;
+        int error_column = column;
+
+        advance();
+
+        while(position < input.length && !is_white_space(input[position]) && !is_simbol(input[position])) {
+          advance();
+        }
+
+        String error_lexeme = input.substring(error_start, position);
+
+        tokens.add(
+          Token('error', error_lexeme, error_start, error_line, error_column)
         );
-        tokens.add(errorToken);
 
         await symbolTable.registerToken(
 
-          lexeme: input[position],
+          lexeme: error_lexeme,
           type: 'error',
-          position: startPosition,
-          line: startLine,
-          column: startColumn,
+          position: error_start,
+          line: error_line,
+          column: error_column,
         );
-
-        advance();
+        
         absolutePosition++;
         continue;
       }

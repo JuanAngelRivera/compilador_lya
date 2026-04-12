@@ -1,4 +1,3 @@
-import 'package:compilador_lya/classes/symb_table.dart';
 import 'package:compilador_lya/classes/token.dart';
 import 'package:compilador_lya/utils/styles.dart';
 import 'package:compilador_lya/widgets/code_editor_widget.dart';
@@ -14,6 +13,7 @@ class EditorView extends StatefulWidget {
 }
 
 class _EditorViewState extends State<EditorView> {
+  final GlobalKey<Code_editorState> editorKey = GlobalKey();
   late Code_editor code_editor;
   int _currentLine = 1;
   int _currentCol = 1;
@@ -37,6 +37,7 @@ class _EditorViewState extends State<EditorView> {
   void initState() {
     super.initState();
     code_editor = Code_editor(
+      key: editorKey,
       controller: widget.controller,
       onCursorChanged: (line, column) {
         setState(() {
@@ -67,18 +68,11 @@ class _EditorViewState extends State<EditorView> {
       child: Row(
         children: [
           _ToolbarButton(
-            label: '▶  Ejecutar',
+            label: '▶  Analizar',
             color: Styles.green,
             textColor: Styles.bg,
-            onPressed: () => {},
-          ),
-          _ToolbarButton(
-            label: '🔍 Test tabla',
             onPressed: () async {
-              final table = await SymbolTableHash.create();
-              print('Tabla creada');
-              print('Ruta: ${table.filePath}');
-              table.printHashTable();
+              await editorKey.currentState?.runFullAnalysis();
             },
           ),
           /*const SizedBox(width: 6),

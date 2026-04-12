@@ -76,11 +76,11 @@ class SymbolTableHash {
 
   String get filePath => _filePath; // ← agrega esta línea aquí
 
-  SymbolTableHash([int initialSize = 101])
+  SymbolTableHash([int initialSize = 1000])
     : _tableSize = initialSize,
       _hashTable = List<SymbolEntry?>.filled(initialSize, null);
 
-  static Future<SymbolTableHash> create([int initialSize = 101]) async {
+  static Future<SymbolTableHash> create([int initialSize = 1000]) async {
     final table = SymbolTableHash(initialSize);
     await table._initialize();
     return table;

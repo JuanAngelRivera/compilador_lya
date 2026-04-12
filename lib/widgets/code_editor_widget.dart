@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:compilador_lya/classes/lexer.dart';
+import 'package:compilador_lya/classes/symb_table.dart';
 import 'package:compilador_lya/classes/token.dart';
 import 'package:compilador_lya/utils/styles.dart';
 import 'package:flutter/material.dart';
@@ -18,10 +19,10 @@ class Code_editor extends StatefulWidget {
   });
 
   @override
-  State<Code_editor> createState() => _Code_editorState();
+  State<Code_editor> createState() => Code_editorState();
 }
 
-class _Code_editorState extends State<Code_editor> {
+class Code_editorState extends State<Code_editor> {
   final ScrollController scroll_controller = ScrollController();
   final ScrollController scroll_controller_h = ScrollController();
 
@@ -53,6 +54,18 @@ class _Code_editorState extends State<Code_editor> {
         widget.onTokensChanged?.call(tokens);
       });
     });
+  }
+
+  Future<void> runFullAnalysis() async {
+    final symbolTable = await SymbolTableHash.create();
+    final tokens = await Lexer(widget.controller.text).tokenizeAndRegister(symbolTable);
+
+    setState(() {
+      this.tokens = tokens;
+      symbolTable.printHashTable();
+    });
+
+    widget.onTokensChanged?.call(tokens);
   }
 
   @override
