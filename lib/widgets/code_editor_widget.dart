@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:compilador_lya/classes/lexer.dart';
 import 'package:compilador_lya/classes/token.dart';
 import 'package:compilador_lya/utils/styles.dart';
@@ -7,28 +6,41 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class Code_editor extends StatefulWidget {
-  const Code_editor({super.key});
+  final TextEditingController controller;
+  final Function(int line, int col)? onCursorChanged;
+  final Function(List<Token>)? onTokensChanged;
+
+  const Code_editor({
+    super.key,
+    required this.controller,
+    required this.onCursorChanged,
+    required this.onTokensChanged,
+  });
 
   @override
   State<Code_editor> createState() => _Code_editorState();
 }
 
 class _Code_editorState extends State<Code_editor> {
-
-  TextEditingController controller = TextEditingController();
   final ScrollController scroll_controller = ScrollController();
+  final ScrollController scroll_controller_h = ScrollController();
 
   List<Token> tokens = [];
   Timer? debounce;
 
   int get line_count {
-    return '\n'.allMatches(controller.text).length + 1;
+    return '\n'.allMatches(widget.controller.text).length + 1;
   }
+
   @override
   void initState() {
     super.initState();
 
-    controller.addListener(() {
+    widget.controller.addListener(() {
+      final line = get_current_line();
+      final column = get_current_column();
+
+      widget.onCursorChanged?.call(line, column);
       update_tokens();
     });
   }
@@ -37,7 +49,8 @@ class _Code_editorState extends State<Code_editor> {
     debounce?.cancel();
     debounce = Timer(Duration(milliseconds: 100), () {
       setState(() {
-        tokens = Lexer(controller.text).tokenize();
+        tokens = Lexer(widget.controller.text).tokenize();
+        widget.onTokensChanged?.call(tokens);
       });
     });
   }
@@ -47,60 +60,84 @@ class _Code_editorState extends State<Code_editor> {
     return Container(
       color: Styles.overlay,
       padding: EdgeInsets.all(12),
-      child: SingleChildScrollView(
+      // 1. SCROLLBAR VERTICAL (Padre de todo)
+      child: Scrollbar(
         controller: scroll_controller,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            build_line_numbers(),
-        
-            Expanded(
-              child: Stack(
-                children: [
-                  RichText(text: build_text()),
-                  Focus(
-                    onKeyEvent: (node, event) {
-                      if (event is KeyDownEvent &&
-                          event.logicalKey == LogicalKeyboardKey.tab) {
-                        final selection = controller.selection;
-                        final text = controller.text;
-                        const tab_spaces = '    ';
-              
-                        if (selection.isValid) {
-                          final newText = text.replaceRange(
-                            selection.start,
-                            selection.end,
-                            tab_spaces,
-                          );
-                          controller.value = TextEditingValue(
-                            text: newText,
-                            selection: TextSelection.collapsed(
-                              offset: selection.start + tab_spaces.length,
+        thumbVisibility: true,
+        child: SingleChildScrollView(
+          controller: scroll_controller,
+          scrollDirection: Axis.vertical,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              build_line_numbers(),
+              Expanded(
+                child: Scrollbar(
+                  controller: scroll_controller_h,
+                  thumbVisibility: true,
+                  notificationPredicate: (n) => n.depth == 1,
+                  child: SingleChildScrollView(
+                    controller: scroll_controller_h,
+                    scrollDirection: Axis.horizontal,
+                    child: IntrinsicWidth(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minWidth: MediaQuery.of(context).size.width + 100,
+                        ),
+                        child: Stack(
+                          children: [
+                            RichText(softWrap: false, text: build_text()),
+                            Focus(
+                              onKeyEvent: (node, event) {
+                                if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.tab) {
+                                  final selection = widget.controller.selection;
+                                  final text = widget.controller.text;
+                                  const tabSpaces = '    ';
+
+                                  if (selection.isValid) {
+                                    final newText = text.replaceRange(
+                                      selection.start,
+                                      selection.end,
+                                      tabSpaces,
+                                    );
+
+                                    widget.controller.value = TextEditingValue(
+                                      text: newText,
+                                      selection: TextSelection.collapsed(
+                                        offset:
+                                            selection.start + tabSpaces.length,
+                                      ),
+                                    );
+                                  }
+
+                                  return KeyEventResult
+                                      .handled; // 🔥 IMPORTANTE
+                                }
+
+                                return KeyEventResult.ignored;
+                              },
+                              child: TextField(
+                                controller: widget.controller,
+                                maxLines: null,
+                                style: Styles.code_editor_base.copyWith(
+                                  color: Colors.transparent,
+                                ),
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  isCollapsed: true,
+                                  contentPadding: EdgeInsets.zero,
+                                ),
+                              ),
                             ),
-                          );
-                        }
-                        return KeyEventResult.handled;
-                      }
-                      return KeyEventResult.ignored;
-                    },
-                    child: TextField(
-                      controller: controller,
-                      maxLines: null,
-                      style: Styles.code_editor_base.copyWith(
-                        color: Colors.transparent,
-                      ),
-                      cursorColor: Colors.white,
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        isCollapsed: true,
-                        contentPadding: EdgeInsets.zero,
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -114,7 +151,9 @@ class _Code_editorState extends State<Code_editor> {
       if (current < t.position) {
         spans.add(
           TextSpan(
-            text: normalize(controller.text.substring(current, t.position)),
+            text: normalize(
+              widget.controller.text.substring(current, t.position),
+            ),
             style: Styles.code_editor_base,
           ),
         );
@@ -135,10 +174,10 @@ class _Code_editorState extends State<Code_editor> {
       current = t.position + t.length;
     }
 
-    if (current < controller.text.length) {
+    if (current < widget.controller.text.length) {
       spans.add(
         TextSpan(
-          text: controller.text.substring(current),
+          text: widget.controller.text.substring(current),
           style: Styles.code_editor_base,
         ),
       );
@@ -158,23 +197,36 @@ class _Code_editorState extends State<Code_editor> {
       case 'identificador':
         return Colors.white;
       case 'numero':
-        return Colors.orange;
+        return Colors.greenAccent;
       case 'simbolo':
-        return Colors.purple;
+        return Colors.yellow;
       default:
         return Colors.red;
     }
   }
 
   int get_current_line() {
-    int cursor = controller.selection.start;
+    int cursor = widget.controller.selection.start;
 
-    if (cursor < 0) {
+    if (cursor < 0 || cursor > widget.controller.text.length) {
       return 1;
     }
 
-    String text_before_cursor = controller.text.substring(0, cursor);
-    return  '\n'.allMatches(text_before_cursor).length + 1;
+    String text_before_cursor = widget.controller.text.substring(0, cursor);
+    return '\n'.allMatches(text_before_cursor).length + 1;
+  }
+
+  int get_current_column() {
+    int cursor = widget.controller.selection.start;
+
+    if (cursor < 0 || cursor > widget.controller.text.length) {
+      return 1;
+    }
+
+    String text_before_cursor = widget.controller.text.substring(0, cursor);
+    int last_newline = text_before_cursor.lastIndexOf('\n');
+
+    return cursor - (last_newline + 1) + 1;
   }
 
   Container build_line_numbers() {
@@ -190,7 +242,8 @@ class _Code_editorState extends State<Code_editor> {
           return Text(
             '${index + 1}',
             style: Styles.code_editor_base.copyWith(
-              color: (index + 1 == current_line) ? Colors.white : Colors.grey),
+              color: (index + 1 == current_line) ? Colors.white : Colors.grey,
+            ),
           );
         }),
       ),

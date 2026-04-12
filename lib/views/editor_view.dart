@@ -1,23 +1,54 @@
+<<<<<<< HEAD
 import 'package:compilador_lya/classes/symb_table.dart';
+=======
+import 'package:compilador_lya/classes/token.dart';
+>>>>>>> a4d1832e2b614655422bbd24ca56a15693e998ad
 import 'package:compilador_lya/utils/styles.dart';
 import 'package:compilador_lya/widgets/code_editor_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 
 class EditorView extends StatefulWidget {
-  const EditorView({super.key});
+  final TextEditingController controller;
+  const EditorView({super.key, required this.controller});
 
   @override
   State<EditorView> createState() => _EditorViewState();
 }
 
 class _EditorViewState extends State<EditorView> {
-  final Code_editor code_editor = Code_editor();
+  late Code_editor code_editor;
   int _currentLine = 1;
   int _currentCol = 1;
+
+  String _errorMessage = 'Sin errores';
+
+  void _onTokensChanged(List<Token> tokens) {
+    final error = tokens.firstWhereOrNull((t) => t.type == 'error');
+
+    setState(() {
+      if (error != null) {
+        _errorMessage = "Error en Línea ${error.line}, columna ${error.column}, en '${error.lexeme}'";
+      }
+      else {
+        _errorMessage = 'Sin errores';
+      }
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    code_editor = Code_editor(
+      controller: widget.controller,
+      onCursorChanged: (line, column) {
+        setState(() {
+          _currentLine = line;
+          _currentCol = column;
+        });
+      },
+      onTokensChanged:  _onTokensChanged,
+    );
   }
 
   @override
@@ -53,12 +84,12 @@ class _EditorViewState extends State<EditorView> {
               table.printHashTable();
             },
           ),
-          const SizedBox(width: 6),
+          /*const SizedBox(width: 6),
           _ToolbarButton(label: '↩  Deshacer', onPressed: () {}),
           const SizedBox(width: 6),
           _ToolbarButton(label: '↪  Rehacer', onPressed: () {}),
           const _ToolbarSeparator(),
-          _ToolbarButton(label: '⚙  Configurar', onPressed: () {}),
+          _ToolbarButton(label: '⚙  Configurar', onPressed: () {}),*/
           const Spacer(),
           Text(
             'LyA IDE',
@@ -82,11 +113,13 @@ class _EditorViewState extends State<EditorView> {
   Widget _buildStatusBar() {
     return Container(
       height: 24,
-      color: Styles.accent,
+      color: _errorMessage == 'Sin errores' ? Styles.accent : Styles.red,
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
         children: [
-          _StatusItem(icon: '✓', label: 'Sin errores'),
+          _StatusItem(
+            icon: _errorMessage == 'Sin errores' ? '✓' : '✗', 
+            label: _errorMessage),
           const SizedBox(width: 16),
           _StatusItem(label: 'LyA'),
           const Spacer(),

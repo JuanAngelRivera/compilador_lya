@@ -27,7 +27,7 @@ class DfaIdentifier extends DFA {
 
   MatchToken? q1(String input, position, int start) {
     if (position >= input.length) {
-      return MatchToken('identificador', input.substring(start, position), position - start);
+      return MatchToken('identificador', input.substring(start, position));
     }
 
     String char = input[position];
@@ -36,7 +36,7 @@ class DfaIdentifier extends DFA {
       return q1(input, position + 1, start);
     }
     else{
-      return MatchToken('identificador', input.substring(start, position), position - start);
+      return MatchToken('identificador', input.substring(start, position));
     }
   }
 }

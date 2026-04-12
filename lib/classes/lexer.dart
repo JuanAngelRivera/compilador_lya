@@ -49,8 +49,13 @@ class Lexer {
     'protegido', //protected
     'publico', //public
     'retorna', //return
+<<<<<<< HEAD
     'short',
     'statico', //static
+=======
+    'short', 
+    'estatico', //static
+>>>>>>> a4d1832e2b614655422bbd24ca56a15693e998ad
     'pf_estricto', //estrictfp
     'super',
     'compara', //switch
@@ -64,6 +69,12 @@ class Lexer {
     'volatil', //volatile
     'mientras', //while
   ];
+
+  List<String> simbols = ['=', ';', '{', '}', '(', ')', '+', '-', '*', '/', '[', ']'];
+
+  bool is_simbol (String char) {
+    return simbols.contains(char);
+  }
 
   List<Token> tokenize() {
     List<Token> tokens = [];
@@ -81,14 +92,29 @@ class Lexer {
       MatchToken? match = matchNumber() ?? matchIdentifier() ?? matchSimbol();
 
       if (match == null) {
+<<<<<<< HEAD
         tokens.add(Token('error', input[position], position, line, column));
+=======
+        int error_start = position;
+        int error_line = line;
+        int error_column = column;
 
-        advance();
+        while(position < input.length && !is_white_space(input[position]) && !is_simbol(input[position])) {
+          advance();
+        }
+
+        String error_lexeme = input.substring(error_start, position);
+
+        tokens.add(
+          Token('error', error_lexeme, error_start, error_line, error_column)
+        );
+>>>>>>> a4d1832e2b614655422bbd24ca56a15693e998ad
+
         continue;
       }
 
       if (reserved_words.contains(match.lexeme)) {
-        match = MatchToken('reservada', match.lexeme, match.length);
+        match = MatchToken('reservada', match.lexeme);
       }
 
       Token full_token = Token(
@@ -122,6 +148,7 @@ class Lexer {
   MatchToken? matchSimbol() {
     String char = input[position];
 
+<<<<<<< HEAD
     if (char == '=' ||
         char == ';' ||
         char == '{' ||
@@ -134,6 +161,11 @@ class Lexer {
         char == '/') {
       return MatchToken('simbolo', char, 1);
     }
+=======
+    if (is_simbol(char)) {
+      return MatchToken('simbolo', char);
+    } else {
+>>>>>>> a4d1832e2b614655422bbd24ca56a15693e998ad
     /*switch(char) {
       case '=':
         return MatchToken('igual', char, 1);
@@ -151,6 +183,7 @@ class Lexer {
         return null;
     }*/
     return null;
+    }
   }
 
   bool is_white_space(String char) {
