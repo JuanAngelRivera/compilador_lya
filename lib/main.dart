@@ -1,10 +1,7 @@
 import 'dart:io';
 
 import 'package:compilador_lya/views/editor_view.dart';
-<<<<<<< HEAD
-=======
 import 'package:file_picker/file_picker.dart';
->>>>>>> a4d1832e2b614655422bbd24ca56a15693e998ad
 import 'package:flutter/material.dart';
 
 void main() {
@@ -53,15 +50,11 @@ class _IDEScreenState extends State<IDEScreen> {
         children: [
           _buildMenuBar(),
           Expanded(
-<<<<<<< HEAD
-            child: Row(children: [const Expanded(child: EditorView())]),
-=======
             child: Row(
               children: [
                 Expanded(child: EditorView(controller: controller)),
               ],
             ),
->>>>>>> a4d1832e2b614655422bbd24ca56a15693e998ad
           ),
         ],
       ),

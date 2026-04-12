@@ -49,13 +49,8 @@ class Lexer {
     'protegido', //protected
     'publico', //public
     'retorna', //return
-<<<<<<< HEAD
-    'short',
-    'statico', //static
-=======
     'short', 
     'estatico', //static
->>>>>>> a4d1832e2b614655422bbd24ca56a15693e998ad
     'pf_estricto', //estrictfp
     'super',
     'compara', //switch
@@ -92,9 +87,6 @@ class Lexer {
       MatchToken? match = matchNumber() ?? matchIdentifier() ?? matchSimbol();
 
       if (match == null) {
-<<<<<<< HEAD
-        tokens.add(Token('error', input[position], position, line, column));
-=======
         int error_start = position;
         int error_line = line;
         int error_column = column;
@@ -108,7 +100,6 @@ class Lexer {
         tokens.add(
           Token('error', error_lexeme, error_start, error_line, error_column)
         );
->>>>>>> a4d1832e2b614655422bbd24ca56a15693e998ad
 
         continue;
       }
@@ -148,24 +139,9 @@ class Lexer {
   MatchToken? matchSimbol() {
     String char = input[position];
 
-<<<<<<< HEAD
-    if (char == '=' ||
-        char == ';' ||
-        char == '{' ||
-        char == '}' ||
-        char == '(' ||
-        char == ')' ||
-        char == '+' ||
-        char == '-' ||
-        char == '*' ||
-        char == '/') {
-      return MatchToken('simbolo', char, 1);
-    }
-=======
     if (is_simbol(char)) {
       return MatchToken('simbolo', char);
     } else {
->>>>>>> a4d1832e2b614655422bbd24ca56a15693e998ad
     /*switch(char) {
       case '=':
         return MatchToken('igual', char, 1);

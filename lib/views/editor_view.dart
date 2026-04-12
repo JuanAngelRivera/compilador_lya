@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 import 'package:compilador_lya/classes/symb_table.dart';
-=======
 import 'package:compilador_lya/classes/token.dart';
->>>>>>> a4d1832e2b614655422bbd24ca56a15693e998ad
 import 'package:compilador_lya/utils/styles.dart';
 import 'package:compilador_lya/widgets/code_editor_widget.dart';
 import 'package:flutter/material.dart';
