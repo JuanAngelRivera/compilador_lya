@@ -79,7 +79,7 @@ class Lexer {
     // acceso / otros
     '.', ':', '?', '@',
     //string
-    '"', '\''
+    '"', '\'',
   ];
 
   bool is_symbol(String char) {
@@ -161,7 +161,7 @@ class Lexer {
     if (is_symbol(char)) {
       return MatchToken('simbolo', char);
     }
-      /*switch(char) {
+    /*switch(char) {
       case '=':
         return MatchToken('igual', char, 1);
       case ';':
@@ -177,7 +177,7 @@ class Lexer {
       default:
         return null;
     }*/
-      return null;
+    return null;
   }
 
   bool is_white_space(String char) {
@@ -194,7 +194,7 @@ class Lexer {
     position++;
   }
 
-  //Registro de tokens en la tabla de simbolos
+  //Registro de tokens en la tabla de simbolos y captura de colisiones 
 
   Future<List<Token>> tokenizeAndRegister(SymbolTableHash symbolTable) async {
     List<Token> tokens = [];
@@ -210,7 +210,6 @@ class Lexer {
       int startPosition = absolutePosition;
       int startLine = line;
       int startColumn = column;
-
       MatchToken? match = matchNumber() ?? matchIdentifier() ?? matchSimbol();
 
       if (match == null) {
@@ -220,25 +219,37 @@ class Lexer {
 
         advance();
 
-        while(position < input.length && !is_white_space(input[position]) && !is_symbol(input[position])) {
+        while (position < input.length &&
+            !is_white_space(input[position]) &&
+            !is_symbol(input[position])) {
           advance();
         }
 
         String error_lexeme = input.substring(error_start, position);
-
         tokens.add(
-          Token('error', error_lexeme, error_start, error_line, error_column)
+          Token('error', error_lexeme, error_start, error_line, error_column),
         );
 
-        await symbolTable.registerToken(
+        int prevCollisions =
+            symbolTable.getHashStats()['total_collisions'] as int;
 
+        SymbolEntry entry = await symbolTable.registerToken(
           lexeme: error_lexeme,
           type: 'error',
           position: error_start,
           line: error_line,
           column: error_column,
         );
-        
+
+        int newCollisions =
+            (symbolTable.getHashStats()['total_collisions'] as int) -
+            prevCollisions;
+        if (newCollisions > 0) {
+          print(
+            'Colisión en error "$error_lexeme" | Renglón final: ${entry.memoryAddress} | Saltos requeridos: $newCollisions',
+          );
+        }
+
         absolutePosition++;
         continue;
       }
@@ -253,7 +264,11 @@ class Lexer {
       );
 
       if (finalType != 'reservada' && !symbolTable.existsLexeme(match.lexeme)) {
-        await symbolTable.registerToken(
+        // colisiones actuales
+        int prevCollisions =
+            symbolTable.getHashStats()['total_collisions'] as int;
+
+        SymbolEntry entry = await symbolTable.registerToken(
           lexeme: match.lexeme,
           type: finalType,
           position: startPosition,
@@ -261,6 +276,17 @@ class Lexer {
           column: startColumn,
           value: finalType == 'numero' ? num.tryParse(match.lexeme) : null,
         );
+
+        // captura de colisiones
+
+        int newCollisions =
+            (symbolTable.getHashStats()['total_collisions'] as int) -
+            prevCollisions;
+        if (newCollisions > 0) {
+          print(
+            'Colisión en token "${match.lexeme}" | Renglón final: ${entry.memoryAddress} | Saltos requeridos: $newCollisions',
+          );
+        }
       }
 
       for (int i = 0; i < match.length; i++) {
