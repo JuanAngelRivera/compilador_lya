@@ -76,18 +76,17 @@ class SymbolTableHash {
 
   String get filePath => _filePath;
 
-  SymbolTableHash([int initialSize = 1000])
+  SymbolTableHash([int initialSize = 1009])
     : _tableSize = initialSize,
       _hashTable = List<SymbolEntry?>.filled(initialSize, null);
 
-  static Future<SymbolTableHash> create([int initialSize = 1000]) async {
+  static Future<SymbolTableHash> create([int initialSize = 1009]) async {
     final table = SymbolTableHash(initialSize);
     await table._initialize();
     return table;
   }
 
   Future<void> _initialize() async {
-
     final dir = Directory.current.path;
     _filePath = '$dir/symbol_table.json';
 
@@ -154,13 +153,13 @@ class SymbolTableHash {
   // Función HASH
 
   int _hashFunction(String lexeme, {int attempt = 0}) {
-    int hash = 0;
+    int hash = 5381;
     for (int i = 0; i < lexeme.length; i++) {
-      hash += lexeme.codeUnitAt(i);
+      hash = ((hash << 5) + hash) + lexeme.codeUnitAt(i);
     }
-    hash = (hash + lexeme.length) % _tableSize;
 
-    return (hash + attempt) % _tableSize;
+    return (hash.abs() + attempt) % _tableSize;
+    // .abs (absolute)
   }
 
   // Inserción
@@ -216,7 +215,7 @@ class SymbolTableHash {
   }
 
   void _resizeTable() {
-    int newSize = _tableSize * 2;
+    int newSize = _nextPrime(_tableSize * 2);
     print('Cambio de tamaño de $_tableSize a $newSize');
 
     List<SymbolEntry> currentEntries = [];
@@ -227,7 +226,6 @@ class SymbolTableHash {
     }
 
     // reconstrucción de la tabla con el nuevo tamaño
-
     _hashTable = List<SymbolEntry?>.filled(newSize, null);
     _insertedElements = 0;
     _totalCollisions = 0;
@@ -236,6 +234,24 @@ class SymbolTableHash {
     for (var entry in currentEntries) {
       _insert(entry);
       _insertedElements++;
+    }
+  }
+
+  // obtención del siguiente número primo.
+
+  int _nextPrime(int n) {
+    if (n <= 1) return 2;
+    int prime = n;
+    while (true) {
+      prime++;
+      bool isPrime = true;
+      for (int i = 2; i * i <= prime; i++) {
+        if (prime % i == 0) {
+          isPrime = false;
+          break;
+        }
+      }
+      if (isPrime) return prime;
     }
   }
 
@@ -268,6 +284,10 @@ class SymbolTableHash {
   }) async {
     _lastId++;
 
+    if (_loadFactor > 0.75) {
+      _resizeTable();
+    }
+
     final entry = SymbolEntry(
       id: _lastId,
       lexeme: lexeme,
@@ -278,17 +298,13 @@ class SymbolTableHash {
       value: value,
       scope: scope,
       dataType: dataType,
-      memoryAddress: memoryAddress,
     );
 
-    if (_loadFactor > 0.75) {
-      _resizeTable();
-    }
-
     int index = _insert(entry);
+
+    entry.memoryAddress = index;
     _insertedElements++;
 
-    // Append to file
     await _appendToFile(entry);
 
     print('Token "$lexeme" insertado con el indice: $index (ID: ${_lastId})');
