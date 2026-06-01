@@ -161,22 +161,6 @@ class Lexer {
     if (is_symbol(char)) {
       return MatchToken('simbolo', char);
     }
-      /*switch(char) {
-      case '=':
-        return MatchToken('igual', char, 1);
-      case ';':
-        return MatchToken('punto_coma', char, 1);
-      case '{':
-        return MatchToken('llave_abierta', char, 1);
-      case '}':
-        return MatchToken('llave_cierra', char, 1);
-      case '(':
-        return MatchToken('parentesis_abierto', char, 1);
-      case ')':
-        return MatchToken('parentesis_cerrado', char, 1);
-      default:
-        return null;
-    }*/
       return null;
   }
 
@@ -193,8 +177,6 @@ class Lexer {
     }
     position++;
   }
-
-  //Registro de tokens en la tabla de simbolos
 
   Future<List<Token>> tokenizeAndRegister(SymbolTableHash symbolTable) async {
     List<Token> tokens = [];

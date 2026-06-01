@@ -96,7 +96,9 @@ class _EditorViewState extends State<EditorView> {
   }
 
   Widget _buildEditor() {
-    return Container(color: Styles.bg, child: code_editor);
+    return Container(
+      color: Styles.bg, 
+      child: code_editor);
   }
 
   // barra de estatus
@@ -187,7 +189,7 @@ class _StatusItem extends StatelessWidget {
         Text(
           label,
           style: const TextStyle(
-            fontSize: 11,
+            fontSize: 14,
             color: Styles.bg,
             fontFamily: 'monospace',
           ),

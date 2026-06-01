@@ -124,9 +124,8 @@ class Code_editorState extends State<Code_editor> {
                                   }
 
                                   return KeyEventResult
-                                      .handled; // 🔥 IMPORTANTE
+                                      .handled;
                                 }
-
                                 return KeyEventResult.ignored;
                               },
                               child: TextField(
