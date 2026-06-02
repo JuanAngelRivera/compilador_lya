@@ -295,6 +295,8 @@ class Lexer {
       }
     }
 
+    tokens.add(Token('EOF', 'EOF', position, line, column));
+
     return tokens;
   }
 }

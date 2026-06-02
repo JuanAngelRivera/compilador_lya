@@ -60,7 +60,6 @@ class Code_editorState extends State<Code_editor> {
   Future<void> runFullAnalysis() async {
     final symbolTable = await SymbolTableHash.create();
     final tokens = await Lexer(widget.controller.text).tokenizeAndRegister(symbolTable);
-
     Parser parser = Parser(tokens);
 
     try {
@@ -225,6 +224,8 @@ class Code_editorState extends State<Code_editor> {
         return Colors.greenAccent;
       case 'simbolo':
         return Colors.yellow;
+      case 'EOF':
+        return Colors.transparent;
       default:
         return Colors.red;
     }

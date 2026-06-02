@@ -9,6 +9,7 @@ class Parser {
   void parse() {
     print('\nANÁLISIS SINTÁCTICO\n');
     programa();
+    match('EOF');
 
     if(!isAtEnd()) {
       Token token = peek();
@@ -20,6 +21,10 @@ class Parser {
   // helpers
 
   Token peek() {
+    if(current >= tokens.length) {
+      return tokens.last;
+    }
+
     return tokens[current];
   }
   
