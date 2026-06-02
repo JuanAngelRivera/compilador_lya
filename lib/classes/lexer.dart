@@ -158,6 +158,13 @@ class Lexer {
   MatchToken? matchSimbol() {
     String char = input[position];
 
+    if (position + 1 < input.length) {
+      String twoChars = input.substring(position, position + 2);
+      if (symbols.contains(twoChars)) {
+        return MatchToken('simbolo', twoChars);
+      }
+    }
+    
     if (is_symbol(char)) {
       return MatchToken('simbolo', char);
     }

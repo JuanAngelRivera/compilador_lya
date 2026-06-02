@@ -1,0 +1,12 @@
+int x;
+int y;
+x = 10;
+y = 20;
+si (x < y) {
+  mientras (x != y) {
+    x = x + 1;
+    si (x == 15) {
+      y = y - 1;
+    }
+  }
+}
