@@ -6,7 +6,16 @@ class Parser {
 
   Parser(this.tokens);
 
+  void parse() {
+    programa();
 
+    if(!isAtEnd()) {
+      Token token = peek();
+      throw Exception(
+        "Token inesperado: '${token.lexeme}' en línea ${token.line}"
+      );
+    }
+  }
   // helpers
 
   Token peek() {
