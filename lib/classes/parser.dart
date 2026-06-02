@@ -7,12 +7,13 @@ class Parser {
   Parser(this.tokens);
 
   void parse() {
+    print('\nANÁLISIS SINTÁCTICO\n');
     programa();
 
     if(!isAtEnd()) {
       Token token = peek();
       throw Exception(
-        "Token inesperado: '${token.lexeme}' en línea ${token.line}"
+        "Token inesperado: '${token.lexeme}'/${token.type} en línea ${token.line}"
       );
     }
   }
@@ -31,8 +32,9 @@ class Parser {
       return tokens[current++];
     }
 
+    Token token = peek();
     throw Exception(
-      "Se esperaba $expectedType pero se encontró ${peek().type}"
+      "Error sintáctico en línea ${token.line}, columna ${token.column}. Se esperaba $expectedType y se encontró ${token.lexeme}"
     );
   }
 
@@ -55,7 +57,7 @@ class Parser {
 
   bool _isStartOfSentence(Token token) {
     return _isType(token)||
-           token.lexeme == 'identificador' ||
+           token.type == 'identificador' ||
            token.lexeme == 'si' ||
            token.lexeme == 'mientras';
   }
@@ -69,12 +71,14 @@ class Parser {
 
   void sentencias() {
     while(!isAtEnd() && _isStartOfSentence(peek())) {
+      print('sentencia');
       sentencia();
     }
   }
 
   void sentencia() {
     Token token = peek();
+    print(token.lexeme);
     
     if(_isType(token)) {
       declaracion();
@@ -82,10 +86,10 @@ class Parser {
     else if(token.type == 'identificador') {
       asignacion();
     }
-    else if(token.lexeme == 'si') {
+    else if(token.lexeme == 'si' && token.type == 'reservada') {
       secuenciaIf();
     }
-    else if(token.lexeme == 'mientras') {
+    else if(token.lexeme == 'mientras' && token.type == 'reservada') {
       secuenciaWhile();
     }
     else {
@@ -96,6 +100,7 @@ class Parser {
   }
 
   void declaracion() {
+    print('declaracion');
     tipo();
 
     match('identificador');
@@ -117,6 +122,7 @@ class Parser {
   }
 
   void asignacion() {
+    print('asignacion');
     match('identificador');
 
     matchLexeme('=');
@@ -127,6 +133,7 @@ class Parser {
   }
 
   void expresion() {
+    print('expresion');
     termino();
     
     expresionP();
@@ -143,6 +150,7 @@ class Parser {
   }
 
   void termino() {
+    print('termino');
     factor();
 
     terminoP();
@@ -159,6 +167,7 @@ class Parser {
   }
 
   void factor() {
+    print('factor');
     Token token = peek();
 
     if(token.type == 'identificador') {
@@ -182,6 +191,7 @@ class Parser {
   }
 
   void secuenciaIf() {
+    print('if');
     matchLexeme('si');
 
     matchLexeme('(');
@@ -196,6 +206,7 @@ class Parser {
   }
 
   void elseOpcional() {
+    print('else');
     if(peek().lexeme == 'si_no') {
       matchLexeme('si_no');
 
@@ -204,6 +215,7 @@ class Parser {
   }
 
   void condicion() {
+    print('condicion');
     expresion();
 
     operadorRel();
@@ -231,6 +243,7 @@ class Parser {
   }
 
   void bloque() {
+    print('bloque');
     matchLexeme('{');
 
     sentencias();
@@ -239,6 +252,7 @@ class Parser {
   }
 
   void secuenciaWhile() {
+    print('while');
     matchLexeme('mientras');
 
     matchLexeme('(');

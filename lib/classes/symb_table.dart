@@ -90,7 +90,7 @@ class SymbolTableHash {
     final dir = Directory.current.path;
     _filePath = '$dir/symbol_table.json';
 
-    print('Tabla de símbolos en: $_filePath');
+    //print('Tabla de símbolos en: $_filePath');
 
     final file = File(_filePath);
     if (!file.existsSync()) {
@@ -100,7 +100,7 @@ class SymbolTableHash {
       print('Archivo creado con palabras reservadas');
     } else {
       _recoverFile();
-      print('Archivo recuperado con ${_insertedElements} entradas');
+      //print('Archivo recuperado con ${_insertedElements} entradas');
     }
   }
 

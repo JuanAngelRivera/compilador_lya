@@ -75,7 +75,7 @@ class Code_editorState extends State<Code_editor> {
 
     setState(() {
       this.tokens = tokens;
-      symbolTable.printHashTable();
+      //symbolTable.printHashTable();
     });
 
     widget.onTokensChanged?.call(tokens);
