@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:compilador_lya/classes/lexer.dart';
+import 'package:compilador_lya/classes/parser.dart';
 import 'package:compilador_lya/classes/symb_table.dart';
 import 'package:compilador_lya/classes/token.dart';
 import 'package:compilador_lya/utils/styles.dart';
@@ -59,6 +60,18 @@ class Code_editorState extends State<Code_editor> {
   Future<void> runFullAnalysis() async {
     final symbolTable = await SymbolTableHash.create();
     final tokens = await Lexer(widget.controller.text).tokenizeAndRegister(symbolTable);
+
+    Parser parser = Parser(tokens);
+
+    try {
+      parser.parse();
+
+      print("Análisis sintáctico correcto");
+    }
+    catch(e) {
+      print('Error sintáctico: ');
+      print(e);
+    }
 
     setState(() {
       this.tokens = tokens;
