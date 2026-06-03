@@ -130,8 +130,6 @@ class _EditorViewState extends State<EditorView> {
           _StatusItem(label: 'Ln $_currentLine, Col $_currentCol'),
           const SizedBox(width: 16),
           _StatusItem(label: 'UTF-8'),
-          const SizedBox(width: 16),
-          _StatusItem(label: 'Espacios: 2'),
         ],
       ),
     );

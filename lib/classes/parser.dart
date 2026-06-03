@@ -299,7 +299,7 @@ class Parser {
       lexeme == '<' ||
       lexeme == '>' ||
       lexeme == '<=' ||
-      lexeme == '=<' ||
+      lexeme == '>=' ||
       lexeme == '==' ||
       lexeme == '!=') {
         current++;
