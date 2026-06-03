@@ -9,6 +9,10 @@ class Parser {
   Parser(this.tokens);
 
   void parse() {
+    if(tokens.isEmpty) {
+      return;
+    }
+
     print('\nANÁLISIS SINTÁCTICO\n');
     programa();
     match('EOF');
@@ -31,28 +35,44 @@ class Parser {
   }
   
   bool isAtEnd() {
-    return current >= tokens.length;
+    return current >= tokens.length || tokens[current].type == 'EOF';
   }
 
   Token match(String expectedType) {
-    if (peek().type == expectedType) {
-      return tokens[current++];
-    }
+  Token token = peek();
 
-    Token token = peek();
-    error(token, "Se esperaba $expectedType y se encontró ${token.lexeme}");
-    current++;
+  if (token.type == expectedType) {
+    if (!isAtEnd()) {
+      current++;
+    }
     return token;
   }
 
+  error(token,
+      "Se esperaba $expectedType y se encontró ${token.lexeme}");
+
+  if (!isAtEnd()) {
+    current++;
+  }
+
+  return token;
+}
+
   Token matchLexeme(String expectedLexeme) {
-    if(peek().lexeme == expectedLexeme) {
-      return tokens[current++];
+    Token token = peek();
+
+    if(token.lexeme == expectedLexeme) {
+      if(!isAtEnd()) {
+        current++;
+      }
+      return token;
     }
 
-    Token token = peek();
-    error(token, "Se esperaba '$expectedLexeme' y se encontró '${peek().lexeme}'");
-    current++;
+    error(token, "Se esperaba '$expectedLexeme' y se encontró '${token.lexeme}'");
+
+    if(!isAtEnd()) {
+      current++;
+    }
     return token;
   } 
 
@@ -110,9 +130,9 @@ class Parser {
       secuenciaWhile();
     }
     else {
-      throw Exception(
-        "Sentencia inválida en línea ${token.line}"
-      );
+      error(token, "Sentencia inválida");
+      current++;
+      return;
     }
   }
 
@@ -132,9 +152,9 @@ class Parser {
       current++;
     }
     else {
-      throw Exception(
-        "Se esperaba un tipo en línea ${token.line}"
-      );
+      error(token, "Se esperaba un tipo de dato");
+      current++;
+      return;
     }
   }
 
@@ -201,9 +221,9 @@ class Parser {
       matchLexeme(')');
     }
     else {
-      throw Exception(
-        "Factor inválido en línea ${token.line}"
-      );
+      error(token, "Factor inválido");
+      current++;
+      return;
     }
   }
 
@@ -241,7 +261,8 @@ class Parser {
   }
 
   void operadorRel() {
-    String lexeme = peek().lexeme;
+    Token token = peek();
+    String lexeme = token.lexeme;
 
     if(
       lexeme == '<' ||
@@ -253,9 +274,9 @@ class Parser {
         current++;
       }
     else {
-      throw Exception(
-        "Se esperaba operador relacional en línea ${peek().line}"
-      );
+      error(token, "Se esperaba operador relacional");
+      current++;
+      return;
     }
   }
 

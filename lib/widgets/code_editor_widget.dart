@@ -31,6 +31,7 @@ class Code_editorState extends State<Code_editor> {
   final ScrollController scroll_controller_h = ScrollController();
 
   List<Token> tokens = [];
+  List<SyntaxError> syntax_errors = [];
   Timer? debounce;
 
   int get line_count {
@@ -61,21 +62,18 @@ class Code_editorState extends State<Code_editor> {
   }
 
   Future<void> runFullAnalysis() async {
+    syntax_errors.clear();
     final symbolTable = await SymbolTableHash.create();
     final tokens = await Lexer(widget.controller.text).tokenizeAndRegister(symbolTable);
     Parser parser = Parser(tokens);
 
     try {
       parser.parse();
-
-      print("Análisis sintáctico correcto");
+      syntax_errors = parser.errors;
     }
     catch(e) {
       print(e);
-
     }
-
-    widget.onParse?.call(parser.errors);
 
     setState(() {
       this.tokens = tokens;
@@ -83,6 +81,7 @@ class Code_editorState extends State<Code_editor> {
     });
 
     widget.onTokensChanged?.call(tokens);
+    widget.onParse?.call(parser.errors);
   }
 
   @override

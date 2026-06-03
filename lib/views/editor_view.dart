@@ -22,6 +22,7 @@ class _EditorViewState extends State<EditorView> {
   String _errorMessage = 'Sin errores';
 
   void _onTokensChanged(List<Token> tokens) {
+    print("ON TOKENS CHANGED CALLBACK");
     final error = tokens.firstWhereOrNull((t) => t.type == 'error');
 
     setState(() {
@@ -29,20 +30,24 @@ class _EditorViewState extends State<EditorView> {
         _errorMessage = "Error en Línea ${error.line}, columna ${error.column}, en '${error.lexeme}'";
       }
       else {
-        _errorMessage = 'Sin errores';
+        _errorMessage = 'Sin errores léxicos';
       }
     });
   }
 
   void _onParse(List<SyntaxError> errors) {
-    if(errors.isNotEmpty) {
-      final e = errors.first;
+    print("ON PARSE CALLBACK");
+    setState(() {
+      if(errors.isNotEmpty) {
+        final e = errors.first;
 
-      _errorMessage = "Error sintáctico en línea ${e.line}, columna ${e.column}: ${e.message}";
-    }
-    else {
-      _errorMessage = "Sin errores sintácticos";
-    }
+        _errorMessage = "Error sintáctico en línea ${e.line}, columna ${e.column}: ${e.message}";
+      }
+      else {
+        _errorMessage = "Sin errores sintácticos";
+      }
+    });
+    print(_errorMessage);
   }
 
   @override
@@ -113,12 +118,12 @@ class _EditorViewState extends State<EditorView> {
   Widget _buildStatusBar() {
     return Container(
       height: 24,
-      color: _errorMessage == 'Sin errores' ? Styles.accent : Styles.red,
+      color: _errorMessage == 'Sin errores léxicos' || _errorMessage == 'Sin errores sintácticos' ? Styles.accent : Styles.red,
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
         children: [
           _StatusItem(
-            icon: _errorMessage == 'Sin errores' ? '✓' : '✗', 
+            icon: _errorMessage == 'Sin errores léxicos' || _errorMessage == 'Sin errores sintácticos' ? '✓' : '✗', 
             label: _errorMessage),
           const SizedBox(width: 16),
           _StatusItem(label: 'LyA'),
