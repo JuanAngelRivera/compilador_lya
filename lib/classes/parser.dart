@@ -19,7 +19,12 @@ class Parser {
 
     if(!isAtEnd()) {
       Token token = peek();
-      error(token, "Token inesperado: '${token.lexeme}'/${token.type}");
+      error(
+        token.line, 
+        token.column,
+        token.position,
+        0,
+        "Token inesperado: '${token.lexeme}'/${token.type}");
       current++;
       return;
     }
@@ -48,8 +53,12 @@ class Parser {
     return token;
   }
 
-  error(token,
-      "Se esperaba $expectedType y se encontró ${token.lexeme}");
+  error(
+    token.line,
+    token.column,
+    token.position,
+    0,
+    "Se esperaba $expectedType");
 
   if (!isAtEnd()) {
     current++;
@@ -68,7 +77,12 @@ class Parser {
       return token;
     }
 
-    error(token, "Se esperaba '$expectedLexeme' y se encontró '${token.lexeme}'");
+    error(
+      token.line,
+      token.column,
+      token.position,
+      0, 
+      "Se esperaba '$expectedLexeme'");
 
     if(!isAtEnd()) {
       current++;
@@ -90,11 +104,13 @@ class Parser {
            token.lexeme == 'mientras';
   }
 
-  void error(Token token, String message) {
+  void error(int line, int column, int position, int length, String message) {
     errors.add(
       SyntaxError(
-        token.line, 
-        token.column,
+        line,
+        column,
+        position,
+        length, 
         message
       ));
   }
@@ -130,7 +146,12 @@ class Parser {
       secuenciaWhile();
     }
     else {
-      error(token, "Sentencia inválida");
+      error(
+        token.line,
+        token.column,
+        token.position,
+        token.length,
+        "Sentencia inválida");
       current++;
       return;
     }
@@ -152,7 +173,12 @@ class Parser {
       current++;
     }
     else {
-      error(token, "Se esperaba un tipo de dato");
+      error(
+        token.line,
+        token.column,
+        token.position,
+        token.length,
+        "Se esperaba un tipo de dato");
       current++;
       return;
     }
@@ -221,7 +247,12 @@ class Parser {
       matchLexeme(')');
     }
     else {
-      error(token, "Factor inválido");
+      error(
+        token.line,
+        token.column,
+        token.position,
+        token.length, 
+        "Factor inválido");
       current++;
       return;
     }
@@ -274,7 +305,12 @@ class Parser {
         current++;
       }
     else {
-      error(token, "Se esperaba operador relacional");
+      error(
+        token.line,
+        token.column,
+        token.position,
+        0,
+        "Se esperaba operador relacional");
       current++;
       return;
     }

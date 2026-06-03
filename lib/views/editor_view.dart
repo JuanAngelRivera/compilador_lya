@@ -19,7 +19,7 @@ class _EditorViewState extends State<EditorView> {
   int _currentLine = 1;
   int _currentCol = 1;
 
-  String _errorMessage = 'Sin errores';
+  String _errorMessage = 'Sin errores léxicos';
 
   void _onTokensChanged(List<Token> tokens) {
     print("ON TOKENS CHANGED CALLBACK");
@@ -47,7 +47,6 @@ class _EditorViewState extends State<EditorView> {
         _errorMessage = "Sin errores sintácticos";
       }
     });
-    print(_errorMessage);
   }
 
   @override

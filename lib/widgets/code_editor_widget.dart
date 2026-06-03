@@ -31,7 +31,7 @@ class Code_editorState extends State<Code_editor> {
   final ScrollController scroll_controller_h = ScrollController();
 
   List<Token> tokens = [];
-  List<SyntaxError> syntax_errors = [];
+  List<SyntaxError> syntaxErrors = [];
   Timer? debounce;
 
   int get line_count {
@@ -62,14 +62,14 @@ class Code_editorState extends State<Code_editor> {
   }
 
   Future<void> runFullAnalysis() async {
-    syntax_errors.clear();
+    syntaxErrors.clear();
     final symbolTable = await SymbolTableHash.create();
     final tokens = await Lexer(widget.controller.text).tokenizeAndRegister(symbolTable);
     Parser parser = Parser(tokens);
 
     try {
       parser.parse();
-      syntax_errors = parser.errors;
+      syntaxErrors = parser.errors;
     }
     catch(e) {
       print(e);
@@ -174,8 +174,19 @@ class Code_editorState extends State<Code_editor> {
   TextSpan build_text() {
     List<InlineSpan> spans = [];
     int current = 0;
+    final tokenErrors = syntaxErrors.where((e) => e.length > 0).toList();
+    final missingErrors = syntaxErrors.where((e) => e.length == 0).toList();
+    final tokenPositions = tokenErrors.map((e) => e.position).toSet();
+    final missingPositions = missingErrors.map((e) => e.position).toSet();
 
     for (var t in tokens) {
+      if (t.type == 'EOF') {
+        continue;
+      }
+      
+      bool hasError = tokenPositions.contains(t.position);
+      bool missingAfter = missingPositions.contains(t.position + t.length);
+
       if (current < t.position) {
         spans.add(
           TextSpan(
@@ -193,8 +204,11 @@ class Code_editorState extends State<Code_editor> {
         TextSpan(
           text: normalize(t.lexeme),
           style: Styles.code_editor_base.copyWith(
-            color: color,
-            decoration: color == Colors.red ? TextDecoration.underline : null,
+            color: (hasError || missingAfter) ? Colors.red : color,
+            decoration: 
+            (color == Colors.red || hasError || missingAfter)
+            ? TextDecoration.underline 
+            : null,
           ),
         ),
       );
