@@ -166,20 +166,6 @@ class _ToolbarButton extends StatelessWidget {
   }
 }
 
-class _ToolbarSeparator extends StatelessWidget {
-  const _ToolbarSeparator();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 0.5,
-      height: 20,
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      color: Styles.overlay,
-    );
-  }
-}
-
 class _StatusItem extends StatelessWidget {
   final String label;
   final String? icon;

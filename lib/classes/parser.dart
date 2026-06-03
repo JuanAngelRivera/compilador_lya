@@ -23,7 +23,7 @@ class Parser {
         token.line, 
         token.column,
         token.position,
-        0,
+        token.length,
         "Token inesperado: '${token.lexeme}'/${token.type}");
       current++;
       return;
@@ -57,13 +57,10 @@ class Parser {
     token.line,
     token.column,
     token.position,
-    0,
+    1,
     "Se esperaba $expectedType");
-
-  if (!isAtEnd()) {
-    current++;
-  }
-
+  synchronize();
+  
   return token;
 }
 
@@ -71,9 +68,7 @@ class Parser {
     Token token = peek();
 
     if(token.lexeme == expectedLexeme) {
-      if(!isAtEnd()) {
-        current++;
-      }
+      current++;
       return token;
     }
 
@@ -81,12 +76,10 @@ class Parser {
       token.line,
       token.column,
       token.position,
-      0, 
+      1, 
       "Se esperaba '$expectedLexeme'");
+    synchronize();
 
-    if(!isAtEnd()) {
-      current++;
-    }
     return token;
   } 
 
@@ -113,6 +106,20 @@ class Parser {
         length, 
         message
       ));
+  }
+
+  void synchronize() {
+    current++;
+
+    while(!isAtEnd()) {
+      if(_isStartOfSentence(peek())) return;
+
+      if(peek().lexeme == ";") {
+        current++;
+        return;
+      }
+      current++;
+    }
   }
 
 
@@ -177,7 +184,7 @@ class Parser {
         token.line,
         token.column,
         token.position,
-        token.length,
+        1,
         "Se esperaba un tipo de dato");
       current++;
       return;
@@ -309,7 +316,7 @@ class Parser {
         token.line,
         token.column,
         token.position,
-        0,
+        1,
         "Se esperaba operador relacional");
       current++;
       return;

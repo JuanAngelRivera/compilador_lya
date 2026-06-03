@@ -19,7 +19,7 @@ class Code_editor extends StatefulWidget {
     required this.controller,
     required this.onCursorChanged,
     required this.onTokensChanged,
-    required this.onParse
+    required this.onParse,
   });
 
   @override
@@ -64,14 +64,15 @@ class Code_editorState extends State<Code_editor> {
   Future<void> runFullAnalysis() async {
     syntaxErrors.clear();
     final symbolTable = await SymbolTableHash.create();
-    final tokens = await Lexer(widget.controller.text).tokenizeAndRegister(symbolTable);
+    final tokens = await Lexer(
+      widget.controller.text,
+    ).tokenizeAndRegister(symbolTable);
     Parser parser = Parser(tokens);
 
     try {
       parser.parse();
       syntaxErrors = parser.errors;
-    }
-    catch(e) {
+    } catch (e) {
       print(e);
     }
 
@@ -118,7 +119,9 @@ class Code_editorState extends State<Code_editor> {
                             RichText(softWrap: false, text: build_text()),
                             Focus(
                               onKeyEvent: (node, event) {
-                                if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.tab) {
+                                if (event is KeyDownEvent &&
+                                    event.logicalKey ==
+                                        LogicalKeyboardKey.tab) {
                                   final selection = widget.controller.selection;
                                   final text = widget.controller.text;
                                   const tabSpaces = '    ';
@@ -139,8 +142,7 @@ class Code_editorState extends State<Code_editor> {
                                     );
                                   }
 
-                                  return KeyEventResult
-                                      .handled;
+                                  return KeyEventResult.handled;
                                 }
                                 return KeyEventResult.ignored;
                               },
@@ -174,26 +176,43 @@ class Code_editorState extends State<Code_editor> {
   TextSpan build_text() {
     List<InlineSpan> spans = [];
     int current = 0;
-    final tokenErrors = syntaxErrors.where((e) => e.length > 0).toList();
-    final missingErrors = syntaxErrors.where((e) => e.length == 0).toList();
+    final tokenErrors = syntaxErrors.where((e) => e.length > 1).toList();
+    final missingErrors = syntaxErrors.where((e) => e.length == 1).toList();
     final tokenPositions = tokenErrors.map((e) => e.position).toSet();
     final missingPositions = missingErrors.map((e) => e.position).toSet();
+
+    for (var e in missingErrors) {
+      print('missing: pos=${e.position}, line=${e.line}, col=${e.column}');
+    }
+
+    for (var t in tokens) {
+      print('${t.lexeme} pos=${t.position} len=${t.length}');
+    }
 
     for (var t in tokens) {
       if (t.type == 'EOF') {
         continue;
       }
-      
+
       bool hasError = tokenPositions.contains(t.position);
       bool missingAfter = missingPositions.contains(t.position + t.length);
+      bool missingGap = missingErrors.any(
+        (e) => e.position >= current && e.position < t.position,
+      );
 
+      print(hasError);
+      print(missingAfter);
+      print(missingGap);
       if (current < t.position) {
         spans.add(
           TextSpan(
             text: normalize(
               widget.controller.text.substring(current, t.position),
             ),
-            style: Styles.code_editor_base,
+            style: Styles.code_editor_base.copyWith(
+              decoration: missingGap ? TextDecoration.underline : null,
+              color: missingGap ? Colors.red : Styles.code_editor_base.color,
+            ),
           ),
         );
       }
@@ -205,10 +224,9 @@ class Code_editorState extends State<Code_editor> {
           text: normalize(t.lexeme),
           style: Styles.code_editor_base.copyWith(
             color: (hasError || missingAfter) ? Colors.red : color,
-            decoration: 
-            (color == Colors.red || hasError || missingAfter)
-            ? TextDecoration.underline 
-            : null,
+            decoration: (color == Colors.red || hasError || missingAfter)
+                ? TextDecoration.underline
+                : null,
           ),
         ),
       );
@@ -275,6 +293,7 @@ class Code_editorState extends State<Code_editor> {
 
   Container build_line_numbers() {
     int current_line = get_current_line();
+    final errorLines = syntaxErrors.map((e) => e.line).toSet();
 
     return Container(
       width: 40,
@@ -283,10 +302,20 @@ class Code_editorState extends State<Code_editor> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: List.generate(line_count, (index) {
-          return Text(
-            '${index + 1}',
-            style: Styles.code_editor_base.copyWith(
-              color: (index + 1 == current_line) ? Colors.white : Colors.grey,
+          final lineNumber = index + 1;
+          final hasError = errorLines.contains(lineNumber);
+
+          return Container(
+            width: 40,
+            color: hasError ? Colors.red.withValues(alpha: 0.15) : Colors.transparent,
+            alignment: Alignment.centerRight,
+            child: Text(
+              '$lineNumber',
+              style: Styles.code_editor_base.copyWith(
+                color: hasError
+                    ? Colors.red
+                    : (lineNumber == current_line ? Colors.white : Colors.grey),
+              ),
             ),
           );
         }),
