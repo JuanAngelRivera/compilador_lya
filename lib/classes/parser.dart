@@ -1,8 +1,10 @@
+import 'package:compilador_lya/classes/syntax_error.dart';
 import 'package:compilador_lya/classes/token.dart';
 
 class Parser {
   final List<Token> tokens;
   int current = 0;
+  final List<SyntaxError> errors = [];
 
   Parser(this.tokens);
 
@@ -13,9 +15,9 @@ class Parser {
 
     if(!isAtEnd()) {
       Token token = peek();
-      throw Exception(
-        "Token inesperado: '${token.lexeme}'/${token.type} en línea ${token.line}"
-      );
+      error(token, "Token inesperado: '${token.lexeme}'/${token.type}");
+      current++;
+      return;
     }
   }
   // helpers
@@ -38,9 +40,9 @@ class Parser {
     }
 
     Token token = peek();
-    throw Exception(
-      "Error sintáctico en línea ${token.line}, columna ${token.column}. Se esperaba $expectedType y se encontró ${token.lexeme}"
-    );
+    error(token, "Se esperaba $expectedType y se encontró ${token.lexeme}");
+    current++;
+    return token;
   }
 
   Token matchLexeme(String expectedLexeme) {
@@ -48,9 +50,10 @@ class Parser {
       return tokens[current++];
     }
 
-    throw Exception(
-      "Se esperaba '$expectedLexeme' y se encontró '${peek().lexeme}' en línea ${peek().line}"
-    );
+    Token token = peek();
+    error(token, "Se esperaba '$expectedLexeme' y se encontró '${peek().lexeme}'");
+    current++;
+    return token;
   } 
 
   bool _isType(Token token) {
@@ -65,6 +68,15 @@ class Parser {
            token.type == 'identificador' ||
            token.lexeme == 'si' ||
            token.lexeme == 'mientras';
+  }
+
+  void error(Token token, String message) {
+    errors.add(
+      SyntaxError(
+        token.line, 
+        token.column,
+        message
+      ));
   }
 
 

@@ -1,3 +1,4 @@
+import 'package:compilador_lya/classes/syntax_error.dart';
 import 'package:compilador_lya/classes/token.dart';
 import 'package:compilador_lya/utils/styles.dart';
 import 'package:compilador_lya/widgets/code_editor_widget.dart';
@@ -33,6 +34,17 @@ class _EditorViewState extends State<EditorView> {
     });
   }
 
+  void _onParse(List<SyntaxError> errors) {
+    if(errors.isNotEmpty) {
+      final e = errors.first;
+
+      _errorMessage = "Error sintáctico en línea ${e.line}, columna ${e.column}: ${e.message}";
+    }
+    else {
+      _errorMessage = "Sin errores sintácticos";
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -46,6 +58,7 @@ class _EditorViewState extends State<EditorView> {
         });
       },
       onTokensChanged:  _onTokensChanged,
+      onParse: _onParse,
     );
   }
 
@@ -75,12 +88,6 @@ class _EditorViewState extends State<EditorView> {
               await editorKey.currentState?.runFullAnalysis();
             },
           ),
-          /*const SizedBox(width: 6),
-          _ToolbarButton(label: '↩  Deshacer', onPressed: () {}),
-          const SizedBox(width: 6),
-          _ToolbarButton(label: '↪  Rehacer', onPressed: () {}),
-          const _ToolbarSeparator(),
-          _ToolbarButton(label: '⚙  Configurar', onPressed: () {}),*/
           const Spacer(),
           Text(
             'LyA IDE',

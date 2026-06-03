@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:compilador_lya/classes/lexer.dart';
 import 'package:compilador_lya/classes/parser.dart';
 import 'package:compilador_lya/classes/symb_table.dart';
+import 'package:compilador_lya/classes/syntax_error.dart';
 import 'package:compilador_lya/classes/token.dart';
 import 'package:compilador_lya/utils/styles.dart';
 import 'package:flutter/material.dart';
@@ -11,12 +12,14 @@ class Code_editor extends StatefulWidget {
   final TextEditingController controller;
   final Function(int line, int col)? onCursorChanged;
   final Function(List<Token>)? onTokensChanged;
+  final Function(List<SyntaxError>)? onParse;
 
   const Code_editor({
     super.key,
     required this.controller,
     required this.onCursorChanged,
     required this.onTokensChanged,
+    required this.onParse
   });
 
   @override
@@ -68,9 +71,11 @@ class Code_editorState extends State<Code_editor> {
       print("Análisis sintáctico correcto");
     }
     catch(e) {
-      print('Error sintáctico: ');
       print(e);
+
     }
+
+    widget.onParse?.call(parser.errors);
 
     setState(() {
       this.tokens = tokens;
