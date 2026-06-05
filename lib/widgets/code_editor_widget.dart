@@ -181,13 +181,13 @@ class Code_editorState extends State<Code_editor> {
     final tokenPositions = tokenErrors.map((e) => e.position).toSet();
     final missingPositions = missingErrors.map((e) => e.position).toSet();
 
-    for (var e in missingErrors) {
+    /*for (var e in missingErrors) {
       print('missing: pos=${e.position}, line=${e.line}, col=${e.column}');
     }
 
     for (var t in tokens) {
       print('${t.lexeme} pos=${t.position} len=${t.length}');
-    }
+    }*/
 
     for (var t in tokens) {
       if (t.type == 'EOF') {
@@ -259,6 +259,8 @@ class Code_editorState extends State<Code_editor> {
       case 'numero':
         return Colors.greenAccent;
       case 'simbolo':
+        return Colors.orange;
+      case 'cadena':
         return Colors.yellow;
       case 'EOF':
         return Colors.transparent;

@@ -63,6 +63,7 @@ class Lexer {
     'vacio', //void
     'volatil', //volatile
     'mientras', //while
+    'cadena' // String
   ];
 
   List<String> symbols = [
@@ -78,8 +79,6 @@ class Lexer {
     '(', ')', '{', '}', '[', ']', ';', ',',
     // acceso / otros
     '.', ':', '?', '@',
-    //string
-    '"', '\'',
   ];
 
   bool is_symbol(String char) {
@@ -99,7 +98,7 @@ class Lexer {
       int start_line = line;
       int start_column = column;
 
-      MatchToken? match = matchNumber() ?? matchIdentifier() ?? matchSimbol();
+      MatchToken? match = matchString() ?? matchNumber() ?? matchIdentifier() ?? matchSimbol();
 
       if (match == null) {
         int error_start = position;
@@ -153,6 +152,32 @@ class Lexer {
   MatchToken? matchIdentifier() {
     var dfa = DfaIdentifier(input, position);
     return dfa.recognize();
+  }
+
+  MatchToken? matchString() {
+    if(position >= input.length) {
+      return null;
+    }
+
+    String delimiter = input[position];
+
+    if(delimiter != "'" && delimiter != '"') {
+      return null;
+    }
+
+    int i = position + 1;
+
+    while(i < input.length && input[i] != delimiter) {
+      i++;
+    }
+
+    if(i >= input.length) {
+      return MatchToken('error', input.substring(position));
+    }
+
+    String lexeme = input.substring(position, i + 1);
+
+    return MatchToken('cadena', lexeme);
   }
 
   MatchToken? matchSimbol() {
@@ -217,7 +242,7 @@ class Lexer {
       int startPosition = absolutePosition;
       int startLine = line;
       int startColumn = column;
-      MatchToken? match = matchNumber() ?? matchIdentifier() ?? matchSimbol();
+      MatchToken? match = matchString() ?? matchNumber() ?? matchIdentifier() ?? matchSimbol();
 
       if (match == null) {
         int error_start = position;

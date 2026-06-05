@@ -87,6 +87,7 @@ class Parser {
     return token.lexeme == 'int' ||
            token.lexeme == 'float' ||
            token.lexeme == 'booleano' ||
+           token.lexeme == 'cadena' ||
            token.lexeme == 'char';
   }
 
@@ -244,6 +245,9 @@ class Parser {
       current++;
     }
     else if(token.type == 'numero') {
+      current++;
+    }
+    else if(token.type == 'cadena') {
       current++;
     }
     else if(token.lexeme == '(') {
