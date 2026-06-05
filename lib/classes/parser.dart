@@ -244,10 +244,7 @@ class Parser {
     if(token.type == 'identificador') {
       current++;
     }
-    else if(token.type == 'numero') {
-      current++;
-    }
-    else if(token.type == 'cadena') {
+    else if(_isLiteral()) {
       current++;
     }
     else if(token.lexeme == '(') {
@@ -267,6 +264,16 @@ class Parser {
       current++;
       return;
     }
+  }
+
+  bool _isLiteral() {
+    print('literal');
+    Token token = peek();
+
+    return token.type == 'numero' ||
+       token.type == 'cadena' ||
+       token.lexeme == 'verdadero' ||
+       token.lexeme == 'falso';
   }
 
   void secuenciaIf() {
@@ -300,6 +307,18 @@ class Parser {
     operadorRel();
 
     expresion();
+
+    condicionP();
+  }
+
+  void condicionP() {
+    Token token = peek();
+
+    if (token.lexeme == '&&' || token.lexeme == '||') {
+      current++;
+
+      condicion();
+    }
   }
 
   void operadorRel() {

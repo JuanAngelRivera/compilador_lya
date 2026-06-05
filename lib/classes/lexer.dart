@@ -63,7 +63,9 @@ class Lexer {
     'vacio', //void
     'volatil', //volatile
     'mientras', //while
-    'cadena' // String
+    'cadena', // String
+    'verdadero',
+    'falso'
   ];
 
   List<String> symbols = [
